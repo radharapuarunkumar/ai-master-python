@@ -133,10 +133,15 @@ def create_app() -> FastAPI:
     # Health check endpoints
     # ------------------------------------------------------------------
 
+    @app.get("/", tags=["Root"], include_in_schema=False)
+    async def root():
+        """Root endpoint returning app status."""
+        return {"status": "ok", "app": "AI Master Python"}
+
     @app.get("/health", tags=["Health"], include_in_schema=False)
     async def health():
         """Basic liveness check — always returns 200 if the app is running."""
-        return {"status": "healthy", "version": "0.1.0", "environment": "production"}
+        return {"status": "healthy"}
 
     @app.get("/health/live", tags=["Health"], include_in_schema=False)
     async def liveness():
