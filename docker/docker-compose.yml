@@ -1,0 +1,120 @@
+# ===========================================================================
+# AI Master Python — Production Docker Compose
+# ===========================================================================
+# Usage:
+#   docker compose -f docker/docker-compose.yml up -d --build
+#
+# All sensitive values are read from the .env file at the project root.
+# ===========================================================================
+
+services:
+  # ---- API Server ----
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: aimaster-api
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - aimaster-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 15s
+      retries: 3
+
+  # ---- PostgreSQL + pgvector ----
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: aimaster-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-aimaster}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-aimaster}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - aimaster-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aimaster}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---- Redis ----
+  redis:
+    image: redis:7-alpine
+    container_name: aimaster-redis
+    restart: unless-stopped
+    command: ["redis-server", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
+    volumes:
+      - redisdata:/data
+    networks:
+      - aimaster-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---- Celery Worker ----
+  celery-worker:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: aimaster-celery-worker
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    command: >
+      celery -A app.worker.celery_app worker
+      --loglevel=info
+      --concurrency=4
+      --max-tasks-per-child=100
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - aimaster-net
+
+  # ---- Celery Beat (periodic tasks) ----
+  celery-beat:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: aimaster-celery-beat
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    command: >
+      celery -A app.worker.celery_app beat
+      --loglevel=info
+      --schedule=/tmp/celerybeat-schedule
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - aimaster-net
+
+volumes:
+  pgdata:
+    driver: local
+  redisdata:
+    driver: local
+
+networks:
+  aimaster-net:
+    driver: bridge

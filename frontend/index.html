@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>AI Master Python — Learn Python with AI</title>
+
+  <meta name="description" content="Master Python programming with AI-powered tutoring, live video sessions, interview simulation, and career tools. Start free today.">
+
+  <link rel="stylesheet" href="/frontend/css/design-system.css">
+
+  <link rel="stylesheet" href="/frontend/css/layout.css">
+
+  <style>
+
+    /* Animated grid background */
+
+    .hero-grid {
+
+      position: absolute; inset: 0;
+
+      background-image:
+
+        linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px),
+
+        linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px);
+
+      background-size: 50px 50px;
+
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 0%, black 40%, transparent 100%);
+
+    }
+
+    .hero-orb {
+
+      position: absolute;
+
+      border-radius: 50%;
+
+      filter: blur(80px);
+
+      pointer-events: none;
+
+      animation: float 8s ease-in-out infinite;
+
+    }
+
+    .hero-orb-1 { width: 400px; height: 400px; background: rgba(99,102,241,0.15); top: -100px; right: 10%; }
+
+    .hero-orb-2 { width: 300px; height: 300px; background: rgba(124,58,237,0.1);  bottom: 10%; left: 5%; animation-delay: -4s; }
+
+
+
+    /* Typing animation for code */
+
+    .typed-code { font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.8; }
+
+    .code-line { display: block; opacity: 0; animation: fadeIn 0.3s ease forwards; }
+
+    .kw  { color: #c792ea; }
+
+    .fn  { color: #82aaff; }
+
+    .str { color: #c3e88d; }
+
+    .cm  { color: #546e7a; }
+
+    .num { color: #f78c6c; }
+
+    .op  { color: #89ddff; }
+
+
+
+    /* Beta pill */
+
+    .beta-demo {
+
+      background: var(--bg-surface);
+
+      border: 1px solid var(--border);
+
+      border-radius: var(--r-xl);
+
+      padding: var(--s-10);
+
+      position: relative;
+
+      overflow: hidden;
+
+    }
+
+    .beta-demo::before {
+
+      content: '';
+
+      position: absolute;
+
+      inset: -1px;
+
+      border-radius: var(--r-xl);
+
+      background: linear-gradient(135deg, rgba(99,102,241,0.3), transparent 40%, rgba(124,58,237,0.2));
+
+      pointer-events: none;
+
+    }
+
+
+
+    /* Pricing */
+
+    .pricing-card {
+
+      background: var(--bg-card);
+
+      border: 1px solid var(--border);
+
+      border-radius: var(--r-xl);
+
+      padding: var(--s-8);
+
+      display: flex;
+
+      flex-direction: column;
+
+      gap: var(--s-5);
+
+      transition: all var(--t-base);
+
+    }
+
+    .pricing-card.popular {
+
+      border-color: var(--brand-500);
+
+      background: rgba(99,102,241,0.08);
+
+      box-shadow: 0 0 40px rgba(99,102,241,0.15);
+
+      transform: scale(1.02);
+
+    }
+
+    .pricing-card:hover { transform: translateY(-4px) scale(1.01); }
+
+    .pricing-card.popular:hover { transform: translateY(-4px) scale(1.03); }
+
+    .price-amount { font-size: 2.5rem; font-weight: 900; letter-spacing: -0.03em; }
+
+    .price-period { font-size: 0.875rem; color: var(--text-muted); }
+
+    .price-feature { display: flex; align-items: center; gap: var(--s-3); font-size: 0.875rem; color: var(--text-secondary); }
+
+    .price-feature .check { color: #10b981; font-weight: 700; }
+
+    .price-feature .x    { color: var(--text-muted); }
+
+
+
+    /* Footer */
+
+    footer {
+
+      background: var(--bg-surface);
+
+      border-top: 1px solid var(--border);
+
+      padding: var(--s-12) var(--s-8) var(--s-8);
+
+    }
+
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: var(--s-8); margin-bottom: var(--s-10); }
+
+    .footer-link { color: var(--text-secondary); font-size: 0.875rem; display: block; margin-bottom: var(--s-3); transition: color var(--t-fast); }
+
+    .footer-link:hover { color: var(--text-primary); }
+
+    .footer-col-title { font-weight: 700; font-size: 0.9rem; margin-bottom: var(--s-4); }
+
+    @media (max-width: 768px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+
+    @media (max-width: 480px) { .footer-grid { grid-template-columns: 1fr; } }
+
+  </style>
+
+</head>
+
+<body>
+
+  <!-- NAV -->
+
+  <nav class="landing-nav">
+
+    <div class="landing-nav-logo">
+
+      <span>ðŸ</span>
+
+      <span>AI Master Python</span>
+
+    </div>
+
+    <div class="landing-nav-links">
+
+      <a href="#features">Features</a>
+
+      <a href="#curriculum">Curriculum</a>
+
+      <a href="#pricing">Pricing</a>
+
+      <a href="#demo">AI Demo</a>
+
+    </div>
+
+    <div class="landing-nav-ctas">
+
+      <a href="/frontend/pages/login.html" class="btn btn-ghost btn-sm">Sign In</a>
+
+      <a href="/frontend/pages/login.html" class="btn btn-primary btn-sm">Get Started Free</a>
+
+    </div>
+
+  </nav>
+
+
+
+  <!-- HERO -->
+
+  <section class="hero">
+
+    <div class="hero-grid"></div>
+
+    <div class="hero-orb hero-orb-1"></div>
+
+    <div class="hero-orb hero-orb-2"></div>
+
+
+
+    <div class="container" style="position:relative;z-index:1;display:grid;grid-template-columns:1fr 480px;gap:64px;align-items:center">
+
+      <div class="hero-content animate-in">
+
+        <div class="hero-eyebrow">
+
+          <div class="hero-eyebrow-dot"></div>
+
+          Now in Beta — Join 2,400+ learners
+
+        </div>
+
+        <h1 class="hero-title">
+
+          Master Python<br>
+
+          <span class="gradient-text">with AI by your side</span>
+
+        </h1>
+
+        <p class="hero-sub">
+
+          Structured curriculum from zero to professional. Live AI tutoring, mock interviews, career tools, and beta AI generation features — all in one platform.
+
+        </p>
+
+        <div class="hero-ctas">
+
+          <a href="/frontend/pages/login.html" class="btn btn-primary btn-xl">
+
+            🚀 Start Learning Free
+
+          </a>
+
+          <a href="#demo" class="btn btn-secondary btn-xl">
+
+            ✨ See AI in Action
+
+          </a>
+
+        </div>
+
+        <div class="hero-stats">
+
+          <div>
+
+            <div class="hero-stat-val gradient-text">50+</div>
+
+            <div class="hero-stat-label">Daily Lessons</div>
+
+          </div>
+
+          <div style="width:1px;background:var(--border);align-self:stretch"></div>
+
+          <div>
+
+            <div class="hero-stat-val gradient-text">AI</div>
+
+            <div class="hero-stat-label">Live Tutor</div>
+
+          </div>
+
+          <div style="width:1px;background:var(--border);align-self:stretch"></div>
+
+          <div>
+
+            <div class="hero-stat-val gradient-text">100%</div>
+
+            <div class="hero-stat-label">Free to Start</div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- Code terminal -->
+
+      <div class="animate-in" style="animation-delay:0.15s">
+
+        <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--shadow-lg)">
+
+          <div style="background:rgba(255,255,255,0.03);padding:14px 20px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)">
+
+            <div style="width:12px;height:12px;border-radius:50%;background:#ef4444;opacity:0.8"></div>
+
+            <div style="width:12px;height:12px;border-radius:50%;background:#f59e0b;opacity:0.8"></div>
+
+            <div style="width:12px;height:12px;border-radius:50%;background:#10b981;opacity:0.8"></div>
+
+            <span style="margin-left:8px;font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted)">main.py — AI Master Python</span>
+
+          </div>
+
+          <div style="padding:24px" class="typed-code" id="hero-code"></div>
+
+          <div style="padding:12px 24px;background:rgba(99,102,241,0.05);border-top:1px solid var(--border);display:flex;align-items:center;gap:8px">
+
+            <div class="badge badge-success">✓ AI Generated</div>
+
+            <span style="font-size:0.75rem;color:var(--text-muted)">Tailored to your level</span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- FEATURES -->
+
+  <section class="features-section" id="features">
+
+    <div class="container">
+
+      <div style="text-align:center;margin-bottom:var(--s-12)">
+
+        <div class="badge badge-brand" style="margin-bottom:var(--s-4)">Everything you need</div>
+
+        <h2 class="text-4xl font-extrabold" style="margin-bottom:var(--s-4)">Learn smarter, not harder</h2>
+
+        <p style="color:var(--text-secondary);max-width:480px;margin:0 auto">Every feature is designed to accelerate your Python journey with AI assistance at every step.</p>
+
+      </div>
+
+      <div class="grid-3 stagger">
+
+        <div class="feature-card animate-in">
+
+          <div class="feature-icon" style="background:rgba(99,102,241,0.15)">📚</div>
+
+          <div class="feature-title">Structured Curriculum</div>
+
+          <div class="feature-desc">Day-by-day learning path from Python basics to advanced topics. Organized modules with clear milestones and progress tracking.</div>
+
+        </div>
+
+        <div class="feature-card animate-in">
+
+          <div class="feature-icon" style="background:rgba(16,185,129,0.15)">🤖</div>
+
+          <div class="feature-title">AI Chat Assistant</div>
+
+          <div class="feature-desc">Context-aware AI tutor that knows your current lesson and progress. Ask anything, get instant code examples and explanations.</div>
+
+        </div>
+
+        <div class="feature-card animate-in">
+
+          <div class="feature-icon" style="background:rgba(245,158,11,0.15)">🎙</div>
+
+          <div class="feature-title">Live AI Video Tutoring</div>
+
+          <div class="feature-desc">One-on-one video sessions with an AI tutor powered by LiveKit. Real-time conversation, code review, and personalized guidance.</div>
+
+        </div>
+
+        <div class="feature-card animate-in">
+
+          <div class="feature-icon" style="background:rgba(124,58,237,0.15)">🎯</div>
+
+          <div class="feature-title">Interview Simulator</div>
+
+          <div class="feature-desc">AI-conducted mock technical interviews with real-time evaluation, scoring, and detailed feedback on your performance.</div>
+
+        </div>
+
+        <div class="feature-card animate-in">
+
+          <div class="feature-icon" style="background:rgba(6,182,212,0.15)">📄</div>
+
+          <div class="feature-title">AI Resume Builder + ATS</div>
+
+          <div class="feature-desc">Build professional resumes with AI assistance and check your ATS score with actionable optimization recommendations.</div>
+
+        </div>
+
+        <div class="feature-card animate-in">
+
+          <div class="feature-icon" style="background:rgba(239,68,68,0.15)">ðŸ†</div>
+
+          <div class="feature-title">Certificates</div>
+
+          <div class="feature-desc">Earn verifiable completion certificates with QR codes. Share on LinkedIn and with employers to showcase your skills.</div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- AI DEMO SECTION -->
+
+  <section style="padding:var(--s-24) var(--s-8);background:var(--bg-surface)" id="demo">
+
+    <div class="container">
+
+      <div style="text-align:center;margin-bottom:var(--s-10)">
+
+        <div class="badge badge-purple" style="margin-bottom:var(--s-4)">✨ AI Beta</div>
+
+        <h2 class="text-4xl font-extrabold" style="margin-bottom:var(--s-4)">AI Generation — Live Demo</h2>
+
+        <p style="color:var(--text-secondary)">Experience what premium AI-powered learning looks like</p>
+
+      </div>
+
+      <div class="beta-demo">
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--s-8);align-items:start">
+
+          <div>
+
+            <div style="font-weight:700;margin-bottom:var(--s-3)">Generate a code example</div>
+
+            <div class="input-group" style="margin-bottom:var(--s-3)">
+
+              <label class="input-label">Topic</label>
+
+              <input class="input" id="demo-topic" placeholder="e.g. decorators, async/await, list comprehension…" value="Python decorators">
+
+            </div>
+
+            <div class="input-group" style="margin-bottom:var(--s-5)">
+
+              <label class="input-label">Level</label>
+
+              <select class="input" id="demo-level">
+
+                <option value="beginner">Beginner</option>
+
+                <option value="intermediate" selected>Intermediate</option>
+
+                <option value="advanced">Advanced</option>
+
+              </select>
+
+            </div>
+
+            <button class="btn btn-primary" onclick="runDemo()" id="demo-btn">
+
+              ✨ Generate with AI
+
+            </button>
+
+            <p style="font-size:0.78rem;color:var(--text-muted);margin-top:var(--s-3)">Sign in to access unlimited generations</p>
+
+          </div>
+
+          <div>
+
+            <div id="demo-output" style="min-height:200px">
+
+              <div style="height:200px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:0.875rem;border:1px dashed var(--border);border-radius:var(--r-md)">
+
+                Click "Generate" to see AI in action →
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- CURRICULUM PREVIEW -->
+
+  <section style="padding:var(--s-24) var(--s-8)" id="curriculum">
+
+    <div class="container">
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--s-16);align-items:center">
+
+        <div>
+
+          <div class="badge badge-brand" style="margin-bottom:var(--s-4)">Day-by-Day Learning</div>
+
+          <h2 class="text-4xl font-extrabold" style="margin-bottom:var(--s-5)">A clear path from<br><span class="gradient-text">zero to professional</span></h2>
+
+          <p style="color:var(--text-secondary);margin-bottom:var(--s-8);line-height:1.7">Our structured curriculum takes you through Python step-by-step. Every day has clear goals, hands-on exercises, and AI-powered assistance when you need it.</p>
+
+          <div style="display:flex;flex-direction:column;gap:var(--s-4)">
+
+            <div style="display:flex;align-items:center;gap:var(--s-3)"><span style="color:#10b981;font-size:1.2rem">✓</span><span>90-day structured learning path</span></div>
+
+            <div style="display:flex;align-items:center;gap:var(--s-3)"><span style="color:#10b981;font-size:1.2rem">✓</span><span>Daily lessons with code exercises</span></div>
+
+            <div style="display:flex;align-items:center;gap:var(--s-3)"><span style="color:#10b981;font-size:1.2rem">✓</span><span>Project-based learning at every level</span></div>
+
+            <div style="display:flex;align-items:center;gap:var(--s-3)"><span style="color:#10b981;font-size:1.2rem">✓</span><span>Progress tracking with streak rewards</span></div>
+
+          </div>
+
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:var(--s-3)">
+
+          <!-- Track cards -->
+
+          <div class="card" style="border-left:3px solid #10b981">
+
+            <div style="display:flex;align-items:center;gap:var(--s-4)">
+
+              <div style="font-size:2rem">🌱</div>
+
+              <div>
+
+                <div class="font-bold">Python Foundations</div>
+
+                <div style="font-size:0.8rem;color:var(--text-secondary)">Days 1-30 · Variables, loops, functions, OOP</div>
+
+              </div>
+
+              <div class="badge badge-success" style="margin-left:auto">Free</div>
+
+            </div>
+
+          </div>
+
+          <div class="card" style="border-left:3px solid #6366f1">
+
+            <div style="display:flex;align-items:center;gap:var(--s-4)">
+
+              <div style="font-size:2rem">⚡</div>
+
+              <div>
+
+                <div class="font-bold">Intermediate Python</div>
+
+                <div style="font-size:0.8rem;color:var(--text-secondary)">Days 31-60 · Decorators, generators, async</div>
+
+              </div>
+
+              <div class="badge badge-brand" style="margin-left:auto">Premium</div>
+
+            </div>
+
+          </div>
+
+          <div class="card" style="border-left:3px solid #a78bfa">
+
+            <div style="display:flex;align-items:center;gap:var(--s-4)">
+
+              <div style="font-size:2rem">🔥</div>
+
+              <div>
+
+                <div class="font-bold">Advanced Python</div>
+
+                <div style="font-size:0.8rem;color:var(--text-secondary)">Days 61-90 · Metaclasses, C extensions, performance</div>
+
+              </div>
+
+              <div class="badge badge-brand" style="margin-left:auto">Premium</div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- PRICING -->
+
+  <section style="padding:var(--s-24) var(--s-8);background:var(--bg-surface)" id="pricing">
+
+    <div class="container">
+
+      <div style="text-align:center;margin-bottom:var(--s-12)">
+
+        <h2 class="text-4xl font-extrabold" style="margin-bottom:var(--s-4)">Simple, transparent pricing</h2>
+
+        <p style="color:var(--text-secondary)">Start free. Upgrade when you're ready.</p>
+
+      </div>
+
+      <div class="grid-2" style="max-width:720px;margin:0 auto">
+
+        <div class="pricing-card">
+
+          <div>
+
+            <div class="text-lg font-bold">Free</div>
+
+            <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:4px">Perfect to get started</div>
+
+          </div>
+
+          <div>
+
+            <span class="price-amount">$0</span>
+
+            <span class="price-period"> / forever</span>
+
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:var(--s-3)">
+
+            <div class="price-feature"><span class="check">✓</span> Python Foundations (Days 1-30)</div>
+
+            <div class="price-feature"><span class="check">✓</span> 10 AI chat messages / day</div>
+
+            <div class="price-feature"><span class="check">✓</span> 3 AI generations / day</div>
+
+            <div class="price-feature"><span class="check">✓</span> 1 resume</div>
+
+            <div class="price-feature"><span class="x">✕</span> <span style="color:var(--text-muted)">AI Video Tutoring</span></div>
+
+            <div class="price-feature"><span class="x">✕</span> <span style="color:var(--text-muted)">Interview Simulator</span></div>
+
+            <div class="price-feature"><span class="x">✕</span> <span style="color:var(--text-muted)">Certificates</span></div>
+
+          </div>
+
+          <a href="/frontend/pages/login.html" class="btn btn-secondary" style="text-align:center">Get Started Free</a>
+
+        </div>
+
+        <div class="pricing-card popular">
+
+          <div style="display:flex;align-items:center;justify-content:space-between">
+
+            <div>
+
+              <div class="text-lg font-bold">Premium</div>
+
+              <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:4px">Full platform access</div>
+
+            </div>
+
+            <div class="badge badge-brand">Popular</div>
+
+          </div>
+
+          <div>
+
+            <span class="price-amount gradient-text">$29</span>
+
+            <span class="price-period"> / month</span>
+
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:var(--s-3)">
+
+            <div class="price-feature"><span class="check">✓</span> Full 90-day curriculum</div>
+
+            <div class="price-feature"><span class="check">✓</span> Unlimited AI chat</div>
+
+            <div class="price-feature"><span class="check">✓</span> Unlimited AI generations</div>
+
+            <div class="price-feature"><span class="check">✓</span> AI Video Tutoring (300 min)</div>
+
+            <div class="price-feature"><span class="check">✓</span> Interview Simulator</div>
+
+            <div class="price-feature"><span class="check">✓</span> Certificates</div>
+
+            <div class="price-feature"><span class="check">✓</span> ATS Resume Checker</div>
+
+          </div>
+
+          <a href="/frontend/pages/login.html" class="btn btn-primary" style="text-align:center">Upgrade to Premium</a>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- FOOTER -->
+
+  <footer>
+
+    <div class="container">
+
+      <div class="footer-grid">
+
+        <div>
+
+          <div style="display:flex;align-items:center;gap:var(--s-3);margin-bottom:var(--s-4);font-weight:800;font-size:1.1rem">
+
+            <span>ðŸ</span> AI Master Python
+
+          </div>
+
+          <p style="color:var(--text-secondary);font-size:0.875rem;line-height:1.6;max-width:280px">The most advanced AI-powered Python learning platform. Learn faster with AI assistance at every step.</p>
+
+        </div>
+
+        <div>
+
+          <div class="footer-col-title">Platform</div>
+
+          <a href="#features" class="footer-link">Features</a>
+
+          <a href="#curriculum" class="footer-link">Curriculum</a>
+
+          <a href="#pricing" class="footer-link">Pricing</a>
+
+          <a href="/frontend/pages/login.html" class="footer-link">Get Started</a>
+
+        </div>
+
+        <div>
+
+          <div class="footer-col-title">Learn</div>
+
+          <a href="#" class="footer-link">Python Basics</a>
+
+          <a href="#" class="footer-link">Intermediate</a>
+
+          <a href="#" class="footer-link">Advanced</a>
+
+          <a href="#" class="footer-link">Projects</a>
+
+        </div>
+
+        <div>
+
+          <div class="footer-col-title">Legal</div>
+
+          <a href="#" class="footer-link">Privacy Policy</a>
+
+          <a href="#" class="footer-link">Terms of Service</a>
+
+          <a href="#" class="footer-link">Cookie Policy</a>
+
+        </div>
+
+      </div>
+
+      <div style="border-top:1px solid var(--border);padding-top:var(--s-6);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--s-4)">
+
+        <div style="color:var(--text-muted);font-size:0.8rem">© 2026 AI Master Python. All rights reserved.</div>
+
+        <div style="display:flex;gap:var(--s-4)">
+
+          <div class="badge badge-purple">✨ AI Beta</div>
+
+          <div class="badge badge-success">🟢 Status: Online</div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </footer>
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="/frontend/js/config.js"></script>
+  <script src="/frontend/js/firebase.js"></script>
+  <script src="/frontend/js/api.js"></script>
+
+  <script src="/frontend/js/app.js"></script>
+
+  <script>
+
+    /* ── Animated code in hero ── */
+
+    const lines = [
+
+      `<span class="cm"># AI-generated for you — intermediate level</span>`,
+
+      `<span class="kw">import</span> <span class="fn">functools</span>`,
+
+      ``,
+
+      `<span class="kw">def</span> <span class="fn">timer</span>(<span class="op">func</span>):`,
+
+      `    <span class="str">"""Decorator that measures execution time."""</span>`,
+
+      `    <span class="op">@</span><span class="fn">functools.wraps</span>(<span class="op">func</span>)`,
+
+      `    <span class="kw">def</span> <span class="fn">wrapper</span>(<span class="op">*args</span>, <span class="op">**kwargs</span>):`,
+
+      `        <span class="kw">import</span> <span class="fn">time</span>`,
+
+      `        <span class="op">start</span> <span class="op">=</span> <span class="fn">time.perf_counter</span>()`,
+
+      `        <span class="op">result</span> <span class="op">=</span> <span class="fn">func</span>(<span class="op">*args</span>, <span class="op">**kwargs</span>)`,
+
+      `        <span class="op">elapsed</span> <span class="op">=</span> <span class="fn">time.perf_counter</span>() <span class="op">-</span> <span class="op">start</span>`,
+
+      `        <span class="fn">print</span>(<span class="str">f"â± {func.__name__}: {elapsed:.4f}s"</span>)`,
+
+      `        <span class="kw">return</span> <span class="op">result</span>`,
+
+      `    <span class="kw">return</span> <span class="op">wrapper</span>`,
+
+    ];
+
+    const container = document.getElementById('hero-code');
+
+    lines.forEach((line, i) => {
+
+      const span = document.createElement('span');
+
+      span.className = 'code-line';
+
+      span.innerHTML = line || '&nbsp;';
+
+      span.style.animationDelay = `${i * 0.08}s`;
+
+      container.appendChild(span);
+
+    });
+
+
+
+    /* ── AI demo ── */
+
+    const DEMO_CODE = {
+
+      beginner: {
+
+        intermediate: `# Python Decorators â€” Intermediate Example\nimport functools\n\ndef timer(func):\n    """Measure and print function execution time."""\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        import time\n        start = time.perf_counter()\n        result = func(*args, **kwargs)\n        elapsed = time.perf_counter() - start\n        print(f"â± {func.__name__} took {elapsed:.4f}s")\n        return result\n    return wrapper\n\n@timer\ndef slow_sum(n):\n    return sum(range(n))\n\nslow_sum(1_000_000)  # â± slow_sum took 0.0312s`,
+
+      }
+
+    };
+
+
+
+    async function runDemo() {
+
+      const btn = document.getElementById('demo-btn');
+
+      const out = document.getElementById('demo-output');
+
+      const topic = document.getElementById('demo-topic').value || 'Python decorators';
+
+      const level = document.getElementById('demo-level').value;
+
+
+
+      btn.disabled = true;
+
+      btn.innerHTML = '<div class="spinner"></div> Generating…';
+
+      out.innerHTML = `<div style="display:flex;align-items:center;gap:12px;padding:20px;color:var(--text-secondary)"><div class="spinner"></div><span>AI is generating a ${level} example for "${topic}"…</span></div>`;
+
+
+
+      await new Promise(r => setTimeout(r, 1800)); // Simulate AI latency
+
+
+
+      const code = `# AI-generated: ${topic} (${level} level)\nimport functools\n\ndef cache(func):\n    """Simple memoization decorator."""\n    memo = {}\n    @functools.wraps(func)\n    def wrapper(*args):\n        if args not in memo:\n            memo[args] = func(*args)\n        return memo[args]\n    return wrapper\n\n@cache\ndef fibonacci(n):\n    if n < 2:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)\n\n# Without cache: exponential time O(2^n)\n# With @cache: linear time O(n)!\nprint(fibonacci(40))  # → 102334155`;
+
+
+
+      out.innerHTML = `
+
+        <div class="code-block-header">
+
+          <span>ðŸ python</span>
+
+          <button class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText(document.querySelector('.demo-code').innerText);Toast.success('Copied!')">Copy</button>
+
+        </div>
+
+        <div class="code-block" style="border-radius:0 0 var(--r-md) var(--r-md)">
+
+          <pre class="demo-code" style="margin:0;color:#e2e8f0">${code}</pre>
+
+        </div>
+
+        <div style="margin-top:var(--s-3);display:flex;align-items:center;gap:var(--s-3)">
+
+          <div class="badge badge-purple">✨ AI Beta</div>
+
+          <span style="font-size:0.78rem;color:var(--text-secondary)">Sign in to get unlimited examples, explanations, and quizzes</span>
+
+        </div>`;
+
+
+
+      btn.disabled = false;
+
+      btn.innerHTML = '✨ Generate with AI';
+
+    }
+
+
+
+    /* Smooth scroll */
+
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+
+      a.addEventListener('click', e => {
+
+        e.preventDefault();
+
+        document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
+
+      });
+
+    });
+
+  </script>
+
+</body>
+
+</html>
+
+
+
+
+

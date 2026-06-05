@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — AI Master Python</title>
+  <meta name="description" content="Sign in to AI Master Python with your Google account.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="/frontend/css/design-system.css">
+  <link rel="stylesheet" href="/frontend/css/layout.css">
+  <style>
+    .auth-bg-orb {
+      position: fixed; border-radius: 50%; filter: blur(100px);
+      pointer-events: none; animation: float 10s ease-in-out infinite;
+    }
+    .divider-text {
+      display: flex; align-items: center; gap: var(--s-4);
+      color: var(--text-muted); font-size: 0.8rem; margin: var(--s-6) 0;
+    }
+    .divider-text::before, .divider-text::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+    .google-logo {
+      width: 20px; height: 20px; flex-shrink: 0;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath fill='%23EA4335' d='M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z'/%3E%3Cpath fill='%234285F4' d='M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z'/%3E%3Cpath fill='%23FBBC05' d='M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z'/%3E%3Cpath fill='%2334A853' d='M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z'/%3E%3C/svg%3E") center/contain no-repeat;
+    }
+    .benefit-row {
+      display: flex; align-items: center; gap: var(--s-3);
+      font-size: 0.85rem; color: var(--text-secondary); padding: var(--s-2) 0;
+    }
+    .benefit-row span:first-child { font-size: 1rem; }
+
+    /* Google button loading state */
+    #google-btn.loading {
+      opacity: 0.7;
+      pointer-events: none;
+      cursor: not-allowed;
+    }
+    #google-btn .btn-spinner {
+      display: none;
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    #google-btn.loading .btn-spinner { display: block; }
+    #google-btn.loading .google-logo { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="auth-bg-orb" style="width:500px;height:500px;background:rgba(99,102,241,0.08);top:-150px;left:-100px"></div>
+  <div class="auth-bg-orb" style="width:400px;height:400px;background:rgba(124,58,237,0.07);bottom:-100px;right:-80px;animation-delay:-5s"></div>
+
+  <div class="auth-page">
+    <div style="width:100%;max-width:960px;display:grid;grid-template-columns:1fr 1fr;gap:var(--s-8);align-items:center">
+
+      <!-- ── Left: branding panel ── -->
+      <div class="hide-mobile animate-in">
+        <div style="display:flex;align-items:center;gap:var(--s-3);margin-bottom:var(--s-8)">
+          <div style="width:52px;height:52px;border-radius:var(--r-lg);background:linear-gradient(135deg,var(--brand-600),var(--accent-a));display:flex;align-items:center;justify-content:center;font-size:1.6rem;box-shadow:0 8px 24px rgba(99,102,241,0.4)">🐍</div>
+          <div>
+            <div style="font-size:1.2rem;font-weight:800">AI Master Python</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);letter-spacing:0.06em;text-transform:uppercase">Learning Platform</div>
+          </div>
+        </div>
+        <h1 style="font-size:2.2rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:var(--s-5);line-height:1.2">
+          Your AI-powered<br><span class="gradient-text">Python journey</span><br>starts here
+        </h1>
+        <p style="color:var(--text-secondary);font-size:0.95rem;line-height:1.7;margin-bottom:var(--s-8)">
+          Join thousands of learners mastering Python with live AI tutoring, structured curriculum, and career tools.
+        </p>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div class="benefit-row"><span>📚</span><span>90-day structured curriculum</span></div>
+          <div class="benefit-row"><span>🤖</span><span>Context-aware AI chat assistant</span></div>
+          <div class="benefit-row"><span>🎙️</span><span>Live AI video tutoring sessions</span></div>
+          <div class="benefit-row"><span>🎯</span><span>Mock interview simulator with scoring</span></div>
+          <div class="benefit-row"><span>📄</span><span>AI resume builder + ATS checker</span></div>
+          <div class="benefit-row"><span>🏆</span><span>Verifiable completion certificates</span></div>
+        </div>
+      </div>
+
+      <!-- ── Right: login card ── -->
+      <div class="auth-card animate-in" style="animation-delay:0.1s">
+
+        <!-- Mobile logo (shown on small screens) -->
+        <div style="display:none;align-items:center;gap:var(--s-3);margin-bottom:var(--s-6)" id="mobile-logo">
+          <div style="width:40px;height:40px;border-radius:var(--r-md);background:linear-gradient(135deg,var(--brand-600),var(--accent-a));display:flex;align-items:center;justify-content:center;font-size:1.2rem">🐍</div>
+          <div style="font-size:1rem;font-weight:800">AI Master Python</div>
+        </div>
+
+        <!-- Dev Mode Banner -->
+        <div id="dev-banner" style="display:none; background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.3); color: #eab308; padding: 12px; border-radius: 8px; margin-bottom: 24px; font-size: 0.85rem; align-items: flex-start; gap: 8px;">
+          <span style="font-size:1.2rem;line-height:1">🚧</span>
+          <div>
+            <strong>DEV MODE ACTIVE</strong><br>
+            Real authentication is temporarily disabled. Clicking 'Continue with Google' will create a fake demo session.
+          </div>
+        </div>
+
+        <h2 class="auth-heading">Welcome back 👋</h2>
+        <p class="auth-sub">Sign in with your Google account to continue</p>
+
+        <!-- Error / status message -->
+        <div id="auth-error" style="display:none" class="alert alert-error"></div>
+        <div id="auth-info"  style="display:none" class="alert" style="background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.3);color:var(--brand-300)"></div>
+
+        <!-- Google sign-in via Firebase -->
+        <button class="btn-google" id="google-btn" onclick="handleGoogleLogin()">
+          <div class="btn-spinner"></div>
+          <div class="google-logo"></div>
+          Continue with Google
+        </button>
+
+        <div class="divider-text">or</div>
+
+        <!-- Email / demo fields -->
+        <div class="input-group" style="margin-bottom:var(--s-3)">
+          <label class="input-label">Email address</label>
+          <input class="input" type="email" id="email-input" placeholder="you@example.com">
+        </div>
+        <div class="input-group" style="margin-bottom:var(--s-5)">
+          <label class="input-label">Password</label>
+          <input class="input" type="password" id="pass-input" placeholder="••••••••">
+        </div>
+
+        <button class="btn btn-primary" style="width:100%;margin-bottom:var(--s-4)"
+                onclick="handleEmailLogin()" id="login-btn">
+          Sign In
+        </button>
+
+        <p style="text-align:center;font-size:0.82rem;color:var(--text-muted)">
+          Don't have an account?
+          <a href="#" onclick="handleGoogleLogin()" style="color:var(--brand-300);font-weight:600">Sign up free with Google</a>
+        </p>
+
+        <div class="divider"></div>
+
+        <div style="display:flex;align-items:center;gap:var(--s-2);font-size:0.75rem;color:var(--text-muted);justify-content:center">
+          🔒 Powered by Firebase Authentication · No passwords stored
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Full-screen loading overlay -->
+  <div id="loading-overlay"
+       style="display:none;position:fixed;inset:0;background:rgba(9,9,15,0.88);
+              backdrop-filter:blur(12px);z-index:999;align-items:center;
+              justify-content:center;flex-direction:column;gap:20px">
+    <div class="spinner spinner-lg"></div>
+    <div id="loading-msg" style="color:var(--text-secondary);font-size:0.9rem">Signing you in…</div>
+  </div>
+
+  <!-- ── Scripts: Firebase CDN → config → firebase wrapper → api → app ── -->
+  <!-- Firebase compat SDK (no bundler needed) -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+
+  <!-- App scripts (order matters) -->
+  <script src="/frontend/js/config.js"></script>
+  <script src="/frontend/js/firebase.js"></script>
+  <script src="/frontend/js/api.js"></script>
+  <script src="/frontend/js/app.js"></script>
+
+  <script>
+    // ── Init ────────────────────────────────────────────────────────────────
+    if (window.innerWidth <= 768) {
+      document.getElementById("mobile-logo").style.display = "flex";
+    }
+    if (typeof CONFIG !== 'undefined' && CONFIG.DEV_MODE) {
+      document.getElementById("dev-banner").style.display = "flex";
+    }
+
+    // ── Firebase Google Sign-In ─────────────────────────────────────────────
+    async function handleGoogleLogin() {
+      setGoogleBtnLoading(true);
+      clearMessages();
+
+      // === DEV MODE: FAKE LOGIN ===
+      if (typeof CONFIG !== 'undefined' && CONFIG.DEV_MODE) {
+        setLoadingMsg("Creating dev session…");
+        showLoading(true);
+        
+        setTimeout(() => {
+          const demoUser = {
+            id: "demo-user-123",
+            email: "demo@gmail.com",
+            full_name: "Demo User",
+            avatar_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Demo",
+            role: "free",
+            current_level: "beginner",
+            onboarding_completed: true,
+          };
+          Auth.setUser(demoUser);
+          
+          setLoadingMsg("Welcome! Redirecting…");
+          setTimeout(() => {
+            window.location.href = "/frontend/pages/dashboard.html";
+          }, 500);
+        }, 800);
+        return; // Stop here, bypass real login
+      }
+
+      // === REAL FIREBASE LOGIN ===
+      try {
+        // 1. Firebase popup — user picks their Google account
+        const credential = await FirebaseAuth.signInWithGoogle();
+        const fbUser     = credential.user;
+
+        setLoadingMsg("Getting your profile…");
+        showLoading(true);
+
+        // 2. Get Firebase ID token to send to our backend
+        const idToken = await fbUser.getIdToken();
+
+        // 3. Exchange Firebase token for our app's JWT session (sets httpOnly cookies)
+        let backendUser = null;
+        try {
+          setLoadingMsg("Setting up your session…");
+          const resp = await fetch(
+            CONFIG.API_BASE_URL + "/auth/firebase/login",
+            {
+              method: "POST",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id_token: idToken }),
+            }
+          );
+          if (resp.ok) {
+            const json = await resp.json();
+            backendUser = json.data?.user || json.user || null;
+          }
+        } catch (backendErr) {
+          // Backend offline — still store Firebase profile so dashboard loads
+          console.warn("[Login] Backend unreachable, using Firebase profile only:", backendErr);
+        }
+
+        // 4. Store user profile (backend user preferred; Firebase user as fallback)
+        const profile = backendUser || {
+          id:          fbUser.uid,
+          email:       fbUser.email,
+          full_name:   fbUser.displayName || fbUser.email,
+          avatar_url:  fbUser.photoURL,
+          role:        "free",
+          current_level: "beginner",
+          onboarding_completed: false,
+        };
+        Auth.setUser(profile);
+
+        // 5. Redirect to dashboard
+        setLoadingMsg("Welcome! Redirecting…");
+        setTimeout(() => {
+          window.location.href = "/frontend/pages/dashboard.html";
+        }, 600);
+
+      } catch (err) {
+        showLoading(false);
+        setGoogleBtnLoading(false);
+
+        // Firebase error codes: https://firebase.google.com/docs/auth/web/errors
+        const code = err.code || "";
+        if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request") {
+          // User just closed the popup — no message needed
+          return;
+        }
+        if (code === "auth/popup-blocked") {
+          showError("Popup was blocked by your browser. Please allow popups for this site and try again.");
+          return;
+        }
+        if (code === "auth/network-request-failed") {
+          showError("Network error. Please check your connection and try again.");
+          return;
+        }
+        showError(err.message || "Sign-in failed. Please try again.");
+        console.error("[Login] Firebase error:", err);
+      }
+    }
+
+    // ── Email login (demo mode) ──────────────────────────────────────────────
+    function handleEmailLogin() {
+      clearMessages();
+      const email = document.getElementById("email-input").value.trim();
+      const pass = document.getElementById("pass-input").value;
+      
+      if (!email || !pass) { 
+        showError("Please enter any email and password for the demo."); 
+        return; 
+      }
+      
+      // === DEV MODE: FAKE EMAIL LOGIN ===
+      if (typeof CONFIG !== 'undefined' && CONFIG.DEV_MODE) {
+        setLoadingMsg("Creating dev session…");
+        showLoading(true);
+        
+        setTimeout(() => {
+          const demoUser = {
+            id: "demo-user-456",
+            email: email,
+            full_name: email.split('@')[0],
+            avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
+            role: "free",
+            current_level: "beginner",
+            onboarding_completed: true,
+          };
+          Auth.setUser(demoUser);
+          
+          setLoadingMsg("Welcome! Redirecting…");
+          setTimeout(() => {
+            window.location.href = "/frontend/pages/dashboard.html";
+          }, 500);
+        }, 800);
+        return;
+      }
+
+      showInfo("This platform uses Google Authentication. Please use 'Continue with Google' above.");
+    }
+
+    // ── UI helpers ───────────────────────────────────────────────────────────
+    function showLoading(visible) {
+      document.getElementById("loading-overlay").style.display = visible ? "flex" : "none";
+    }
+    function setLoadingMsg(msg) {
+      document.getElementById("loading-msg").textContent = msg;
+    }
+    function setGoogleBtnLoading(loading) {
+      document.getElementById("google-btn").classList.toggle("loading", loading);
+    }
+    function clearMessages() {
+      const err  = document.getElementById("auth-error");
+      const info = document.getElementById("auth-info");
+      err.style.display  = "none";
+      info.style.display = "none";
+    }
+    function showError(msg) {
+      const el = document.getElementById("auth-error");
+      el.style.display = "flex";
+      el.innerHTML = `<span>⚠</span><span>${msg}</span>`;
+    }
+    function showInfo(msg) {
+      const el = document.getElementById("auth-info");
+      el.style.display = "flex";
+      el.style.background = "rgba(99,102,241,0.10)";
+      el.style.borderColor = "rgba(99,102,241,0.30)";
+      el.style.color = "var(--brand-300)";
+      el.innerHTML = `<span>ℹ</span><span>${msg}</span>`;
+    }
+  </script>
+</body>
+</html>

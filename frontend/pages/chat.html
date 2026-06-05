@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>AI Chat — AI Master Python</title>
+
+  <link rel="stylesheet" href="/frontend/css/design-system.css">
+
+  <link rel="stylesheet" href="/frontend/css/layout.css">
+
+  <style>
+
+    .chat-layout {
+
+      display: flex;
+
+      height: calc(100vh - 60px);
+
+      overflow: hidden;
+
+    }
+
+    .chat-main {
+
+      flex: 1;
+
+      display: flex;
+
+      flex-direction: column;
+
+      overflow: hidden;
+
+    }
+
+    .chat-messages {
+
+      flex: 1;
+
+      overflow-y: auto;
+
+      padding: var(--s-6) var(--s-8);
+
+      display: flex;
+
+      flex-direction: column;
+
+      gap: var(--s-5);
+
+    }
+
+    .msg {
+
+      display: flex;
+
+      gap: var(--s-3);
+
+      animation: fadeIn 0.25s ease;
+
+    }
+
+    .msg.user { flex-direction: row-reverse; }
+
+    .msg-avatar {
+
+      width: 34px; height: 34px; border-radius: 50%;
+
+      display: flex; align-items: center; justify-content: center;
+
+      font-size: 0.9rem; flex-shrink: 0;
+
+    }
+
+    .msg-avatar.ai { background: linear-gradient(135deg, var(--brand-600), var(--accent-a)); color: #fff; }
+
+    .msg-avatar.user { background: rgba(255,255,255,0.08); }
+
+    .msg-bubble {
+
+      max-width: 72%;
+
+      padding: var(--s-4) var(--s-5);
+
+      border-radius: var(--r-lg);
+
+      font-size: 0.9rem;
+
+      line-height: 1.7;
+
+    }
+
+    .msg.ai .msg-bubble {
+
+      background: var(--bg-card);
+
+      border: 1px solid var(--border);
+
+      border-radius: 4px var(--r-lg) var(--r-lg) var(--r-lg);
+
+    }
+
+    .msg.user .msg-bubble {
+
+      background: linear-gradient(135deg, var(--brand-600), var(--accent-a));
+
+      color: #fff;
+
+      border-radius: var(--r-lg) 4px var(--r-lg) var(--r-lg);
+
+    }
+
+    .msg-bubble code {
+
+      font-family: var(--font-mono);
+
+      font-size: 0.82em;
+
+      background: rgba(0,0,0,0.3);
+
+      padding: 1px 5px;
+
+      border-radius: 3px;
+
+    }
+
+    .msg-bubble pre {
+
+      background: rgba(0,0,0,0.4);
+
+      border-radius: var(--r-sm);
+
+      padding: var(--s-4);
+
+      overflow-x: auto;
+
+      margin: var(--s-3) 0;
+
+      font-family: var(--font-mono);
+
+      font-size: 0.8rem;
+
+    }
+
+    .chat-input-area {
+
+      padding: var(--s-5) var(--s-8);
+
+      border-top: 1px solid var(--border);
+
+      background: rgba(9,9,15,0.95);
+
+      backdrop-filter: blur(20px);
+
+    }
+
+    .chat-input-box {
+
+      display: flex;
+
+      align-items: flex-end;
+
+      gap: var(--s-3);
+
+      background: var(--bg-card);
+
+      border: 1px solid var(--border);
+
+      border-radius: var(--r-lg);
+
+      padding: var(--s-3) var(--s-4);
+
+      transition: border-color var(--t-fast);
+
+    }
+
+    .chat-input-box:focus-within { border-color: var(--border-focus); }
+
+    .chat-textarea {
+
+      flex: 1; background: none; border: none; outline: none;
+
+      color: var(--text-primary); font-family: var(--font-sans); font-size: 0.9rem;
+
+      resize: none; min-height: 24px; max-height: 120px; line-height: 1.5;
+
+    }
+
+    .chat-textarea::placeholder { color: var(--text-muted); }
+
+    .send-btn {
+
+      width: 36px; height: 36px;
+
+      background: linear-gradient(135deg, var(--brand-600), var(--accent-a));
+
+      border-radius: var(--r-md);
+
+      display: flex; align-items: center; justify-content: center;
+
+      font-size: 0.9rem; flex-shrink: 0;
+
+      transition: all var(--t-fast);
+
+    }
+
+    .send-btn:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(99,102,241,0.4); }
+
+    .send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .typing-indicator {
+
+      display: flex; align-items: center; gap: 5px; padding: var(--s-3) 0;
+
+    }
+
+    .typing-dot {
+
+      width: 7px; height: 7px; border-radius: 50%;
+
+      background: var(--brand-400);
+
+      animation: typingBounce 1.2s infinite;
+
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typingBounce {
+
+      0%, 60%, 100% { transform: translateY(0); }
+
+      30% { transform: translateY(-6px); }
+
+    }
+
+    .suggestion-chips {
+
+      display: flex; gap: var(--s-2); flex-wrap: wrap; margin-bottom: var(--s-3);
+
+    }
+
+    .suggestion-chip {
+
+      padding: 5px 12px;
+
+      border-radius: var(--r-full);
+
+      border: 1px solid var(--border);
+
+      background: var(--bg-card);
+
+      font-size: 0.78rem;
+
+      color: var(--text-secondary);
+
+      cursor: pointer;
+
+      transition: all var(--t-fast);
+
+    }
+
+    .suggestion-chip:hover { border-color: var(--border-brand); color: var(--text-primary); }
+
+    /* Sessions sidebar */
+
+    .sessions-panel {
+
+      width: 260px;
+
+      border-right: 1px solid var(--border);
+
+      display: flex;
+
+      flex-direction: column;
+
+      overflow: hidden;
+
+    }
+
+    .session-item {
+
+      padding: var(--s-3) var(--s-4);
+
+      cursor: pointer;
+
+      border-radius: var(--r-md);
+
+      margin: 2px var(--s-2);
+
+      transition: all var(--t-fast);
+
+      font-size: 0.85rem;
+
+    }
+
+    .session-item:hover { background: var(--bg-card-hover); }
+
+    .session-item.active { background: rgba(99,102,241,0.12); }
+
+    @media (max-width: 1024px) { .sessions-panel { display: none; } }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="app-layout">
+
+    <div id="sidebar-placeholder"></div>
+
+
+
+    <div class="main-content">
+
+      <div class="topbar">
+
+        <div style="display:flex;align-items:center;gap:var(--s-4)">
+
+          <button class="hamburger" id="hamburger-btn"><span></span><span></span><span></span></button>
+
+          <div class="topbar-title">AI Chat</div>
+
+          <div class="badge badge-purple">✨ Beta</div>
+
+        </div>
+
+        <div class="topbar-actions">
+
+          <button class="btn btn-secondary btn-sm" onclick="newChat()">+ New Chat</button>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="chat-layout">
+
+        <!-- Sessions panel -->
+
+        <div class="sessions-panel">
+
+          <div style="padding:var(--s-4);border-bottom:1px solid var(--border);font-size:0.78rem;font-weight:600;color:var(--text-muted);letter-spacing:0.06em;text-transform:uppercase">Chat History</div>
+
+          <div style="flex:1;overflow-y:auto;padding:var(--s-2) 0" id="sessions-list">
+
+            <div class="session-item active">
+
+              <div style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Python decorators question</div>
+
+              <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px">Just now</div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- Main chat -->
+
+        <div class="chat-main">
+
+          <div class="chat-messages" id="chat-messages">
+
+            <!-- Welcome message -->
+
+            <div class="msg ai">
+
+              <div class="msg-avatar ai">ðŸ</div>
+
+              <div class="msg-bubble">
+
+                <strong>Hello! I'm your AI Python tutor.</strong> 👋<br><br>
+
+                I can help you with:<br>
+
+                • Understanding Python concepts and syntax<br>
+
+                • Debugging your code<br>
+
+                • Code reviews and best practices<br>
+
+                • Lesson explanations and exercises<br><br>
+
+                What would you like to learn today?
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+
+          <div class="chat-input-area">
+
+            <div class="suggestion-chips" id="suggestions">
+
+              <button class="suggestion-chip" onclick="sendSuggestion(this)">Explain Python decorators</button>
+
+              <button class="suggestion-chip" onclick="sendSuggestion(this)">What's the difference between list and tuple?</button>
+
+              <button class="suggestion-chip" onclick="sendSuggestion(this)">How does async/await work?</button>
+
+              <button class="suggestion-chip" onclick="sendSuggestion(this)">Give me a coding challenge</button>
+
+            </div>
+
+            <div class="chat-input-box">
+
+              <textarea class="chat-textarea" id="msg-input" placeholder="Ask anything about Python…" rows="1"
+
+                onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+
+              <button class="send-btn" id="send-btn" onclick="sendMessage()" title="Send (Enter)">↑</button>
+
+            </div>
+
+            <div style="font-size:0.72rem;color:var(--text-muted);margin-top:6px;text-align:center">
+
+              AI responses may not always be accurate. Verify with official Python docs.
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="/frontend/js/config.js"></script>
+  <script src="/frontend/js/firebase.js"></script>
+  <script src="/frontend/js/api.js"></script>
+
+  <script src="/frontend/js/app.js"></script>
+
+  <script>
+
+    let chatHistory = [];
+
+    let isTyping = false;
+
+
+
+    const DEMO_RESPONSES = {
+
+      decorator: `Great question! **Python decorators** are a powerful and elegant design pattern.
+
+
+
+A decorator is a function that takes another function and extends its behavior without explicitly modifying it:
+
+
+
+\`\`\`python
+
+import functools
+
+
+
+def timer(func):
+
+    """Measures function execution time."""
+
+    @functools.wraps(func)
+
+    def wrapper(*args, **kwargs):
+
+        import time
+
+        start = time.perf_counter()
+
+        result = func(*args, **kwargs)
+
+        elapsed = time.perf_counter() - start
+
+        print(f"â± {func.__name__} took {elapsed:.4f}s")
+
+        return result
+
+    return wrapper
+
+
+
+@timer
+
+def slow_function():
+
+    import time
+
+    time.sleep(0.1)
+
+
+
+slow_function()  # â± slow_function took 0.1001s
+
+\`\`\`
+
+
+
+**Key points:**
+
+- \`@timer\` is syntactic sugar for \`slow_function = timer(slow_function)\`
+
+- \`@functools.wraps\` preserves the original function's metadata
+
+- Decorators can be stacked with multiple \`@\` symbols
+
+
+
+Want me to show you more advanced decorator patterns like parameterized decorators?`,
+
+
+
+      async: `**Async/await** in Python enables concurrent programming using coroutines.
+
+
+
+\`\`\`python
+
+import asyncio
+
+import aiohttp
+
+
+
+async def fetch_user(session, user_id):
+
+    """Fetch a user from an API asynchronously."""
+
+    url = f"https://api.example.com/users/{user_id}"
+
+    async with session.get(url) as response:
+
+        return await response.json()
+
+
+
+async def main():
+
+    async with aiohttp.ClientSession() as session:
+
+        # Fetch multiple users concurrently!
+
+        tasks = [fetch_user(session, i) for i in range(1, 6)]
+
+        users = await asyncio.gather(*tasks)
+
+        print(f"Fetched {len(users)} users")
+
+
+
+asyncio.run(main())
+
+\`\`\`
+
+
+
+**Key concepts:**
+
+- \`async def\` defines a coroutine function
+
+- \`await\` suspends the coroutine until the result is ready
+
+- \`asyncio.gather()\` runs multiple coroutines concurrently
+
+- Perfect for I/O-bound tasks (network, file operations)`,
+
+
+
+      default: `That's an interesting Python question! Let me explain it clearly.
+
+
+
+Python's design philosophy emphasizes readability and simplicity — "There should be one obvious way to do it."
+
+
+
+Here's a practical example:
+
+
+
+\`\`\`python
+
+# Python makes complex things simple
+
+data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+
+
+# Functional style
+
+result = list(filter(lambda x: x % 2 == 0, 
+
+              map(lambda x: x ** 2, data)))
+
+
+
+# Pythonic style (preferred!)
+
+result = [x**2 for x in data if x % 2 == 0]
+
+print(result)  # [4, 16, 36, 64, 100]
+
+\`\`\`
+
+
+
+Would you like me to dive deeper into any specific aspect of this?`,
+
+    };
+
+
+
+    async function init() {
+
+      const user = await Auth.requireAuth();
+
+      if (!user) return;
+
+      Sidebar.init('chat');
+
+    }
+
+
+
+    function handleKey(e) {
+
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+
+    }
+
+    function autoResize(el) {
+
+      el.style.height = 'auto';
+
+      el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+
+    }
+
+    function sendSuggestion(el) {
+
+      document.getElementById('msg-input').value = el.textContent;
+
+      document.getElementById('suggestions').style.display = 'none';
+
+      sendMessage();
+
+    }
+
+
+
+    async function sendMessage() {
+
+      const input = document.getElementById('msg-input');
+
+      const text = input.value.trim();
+
+      if (!text || isTyping) return;
+
+
+
+      input.value = '';
+
+      input.style.height = 'auto';
+
+      addMsg('user', text);
+
+      chatHistory.push({ role: 'user', content: text });
+
+      document.getElementById('suggestions').style.display = 'none';
+
+
+
+      isTyping = true;
+
+      document.getElementById('send-btn').disabled = true;
+
+      showTyping();
+
+
+
+      // Simulate AI response (replace with real API call)
+
+      await new Promise(r => setTimeout(r, 1000 + Math.random() * 1200));
+
+      hideTyping();
+
+
+
+      const lower = text.toLowerCase();
+
+      let resp;
+
+      if (lower.includes('decorator')) resp = DEMO_RESPONSES.decorator;
+
+      else if (lower.includes('async') || lower.includes('await')) resp = DEMO_RESPONSES.async;
+
+      else resp = DEMO_RESPONSES.default;
+
+
+
+      addMsg('ai', resp, true);
+
+      chatHistory.push({ role: 'assistant', content: resp });
+
+      isTyping = false;
+
+      document.getElementById('send-btn').disabled = false;
+
+    }
+
+
+
+    function addMsg(role, text, isMarkdown = false) {
+
+      const messages = document.getElementById('chat-messages');
+
+      const div = document.createElement('div');
+
+      div.className = `msg ${role}`;
+
+      const avatarContent = role === 'ai' ? 'ðŸ' : (Auth.getUser()?.full_name?.[0] || '?');
+
+      const content = isMarkdown ? markdownToHtml(text) : escapeHtml(text);
+
+      div.innerHTML = `
+
+        <div class="msg-avatar ${role}">${avatarContent}</div>
+
+        <div class="msg-bubble">${content}</div>`;
+
+      messages.appendChild(div);
+
+      messages.scrollTop = messages.scrollHeight;
+
+    }
+
+
+
+    function showTyping() {
+
+      const messages = document.getElementById('chat-messages');
+
+      const div = document.createElement('div');
+
+      div.className = 'msg ai'; div.id = 'typing-indicator';
+
+      div.innerHTML = `
+
+        <div class="msg-avatar ai">ðŸ</div>
+
+        <div class="msg-bubble" style="padding:var(--s-3) var(--s-5)">
+
+          <div class="typing-indicator">
+
+            <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+
+          </div>
+
+        </div>`;
+
+      messages.appendChild(div);
+
+      messages.scrollTop = messages.scrollHeight;
+
+    }
+
+
+
+    function hideTyping() {
+
+      document.getElementById('typing-indicator')?.remove();
+
+    }
+
+
+
+    function newChat() {
+
+      chatHistory = [];
+
+      const messages = document.getElementById('chat-messages');
+
+      messages.innerHTML = `
+
+        <div class="msg ai">
+
+          <div class="msg-avatar ai">ðŸ</div>
+
+          <div class="msg-bubble">New chat started! What Python topic would you like to explore?</div>
+
+        </div>`;
+
+      document.getElementById('suggestions').style.display = 'flex';
+
+    }
+
+
+
+    function escapeHtml(str) {
+
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+
+    }
+
+
+
+    function markdownToHtml(text) {
+
+      return text
+
+        .replace(/```python\n([\s\S]*?)```/g, (_, code) =>
+
+          `<pre><code>${escapeHtml(code)}</code></pre>`)
+
+        .replace(/```([\s\S]*?)```/g, (_, code) =>
+
+          `<pre><code>${escapeHtml(code)}</code></pre>`)
+
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+
+        .replace(/\n/g, '<br>');
+
+    }
+
+
+
+    init();
+
+  </script>
+
+</body>
+
+</html>
+
+
+
+
+

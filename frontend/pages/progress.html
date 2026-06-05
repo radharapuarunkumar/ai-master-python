@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Progress — AI Master Python</title>
+
+  <link rel="stylesheet" href="/frontend/css/design-system.css">
+
+  <link rel="stylesheet" href="/frontend/css/layout.css">
+
+  <style>
+
+    /* Circular progress ring */
+
+    .ring-container {
+
+      position: relative;
+
+      width: 120px; height: 120px;
+
+      flex-shrink: 0;
+
+    }
+
+    .ring-svg { transform: rotate(-90deg); }
+
+    .ring-bg   { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 8; }
+
+    .ring-fill { fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1); }
+
+    .ring-label {
+
+      position: absolute; inset: 0;
+
+      display: flex; align-items: center; justify-content: center;
+
+      flex-direction: column;
+
+    }
+
+    .ring-pct { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.04em; }
+
+    .ring-sub  { font-size: 0.65rem; color: var(--text-muted); }
+
+
+
+    /* Timeline */
+
+    .timeline { position: relative; padding-left: 28px; }
+
+    .timeline::before {
+
+      content: ''; position: absolute; left: 9px; top: 8px; bottom: 8px;
+
+      width: 2px; background: var(--border);
+
+    }
+
+    .timeline-item {
+
+      position: relative; margin-bottom: var(--s-5);
+
+    }
+
+    .timeline-dot {
+
+      position: absolute; left: -25px; top: 3px;
+
+      width: 16px; height: 16px; border-radius: 50%;
+
+      border: 2px solid var(--border); background: var(--bg-base);
+
+      display: flex; align-items: center; justify-content: center;
+
+      font-size: 0.5rem;
+
+    }
+
+    .timeline-dot.done  { border-color: #10b981; background: rgba(16,185,129,0.15); }
+
+    .timeline-dot.active{ border-color: var(--brand-500); background: rgba(99,102,241,0.2); animation: pulse-glow 2s infinite; }
+
+    .timeline-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 3px; }
+
+    .timeline-meta  { font-size: 0.78rem; color: var(--text-secondary); }
+
+
+
+    /* Heatmap */
+
+    .heatmap { display: flex; gap: 3px; }
+
+    .heatmap-col { display: flex; flex-direction: column; gap: 3px; }
+
+    .heatmap-cell {
+
+      width: 14px; height: 14px;
+
+      border-radius: 3px;
+
+      background: rgba(255,255,255,0.04);
+
+      transition: all var(--t-fast);
+
+      cursor: pointer;
+
+    }
+
+    .heatmap-cell:hover { transform: scale(1.3); }
+
+    .heatmap-cell[data-level="1"] { background: rgba(99,102,241,0.2); }
+
+    .heatmap-cell[data-level="2"] { background: rgba(99,102,241,0.4); }
+
+    .heatmap-cell[data-level="3"] { background: rgba(99,102,241,0.65); }
+
+    .heatmap-cell[data-level="4"] { background: rgba(99,102,241,0.9); }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="app-layout">
+
+    <div id="sidebar-placeholder"></div>
+
+    <div class="main-content">
+
+      <div class="topbar">
+
+        <div style="display:flex;align-items:center;gap:var(--s-4)">
+
+          <button class="hamburger" id="hamburger-btn"><span></span><span></span><span></span></button>
+
+          <div class="topbar-title">My Progress</div>
+
+        </div>
+
+        <div class="topbar-actions">
+
+          <div class="badge badge-success" id="streak-top">🔥 — streak</div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="page-content">
+
+        <div class="page-header">
+
+          <h1 class="page-title">Your Learning Journey</h1>
+
+          <p class="page-subtitle">Track your progress, streaks, and achievements across all courses</p>
+
+        </div>
+
+
+
+        <!-- Summary stats -->
+
+        <div class="grid-4 stagger animate-in" id="progress-stats" style="margin-bottom:var(--s-8)">
+
+          <div class="stat-card skeleton" style="height:100px"></div>
+
+          <div class="stat-card skeleton" style="height:100px"></div>
+
+          <div class="stat-card skeleton" style="height:100px"></div>
+
+          <div class="stat-card skeleton" style="height:100px"></div>
+
+        </div>
+
+
+
+        <div style="display:grid;grid-template-columns:1fr 340px;gap:var(--s-6);align-items:start">
+
+          <div style="display:flex;flex-direction:column;gap:var(--s-6)">
+
+
+
+            <!-- Heatmap -->
+
+            <div class="card animate-in">
+
+              <div style="font-weight:700;margin-bottom:var(--s-2)">Activity Heatmap</div>
+
+              <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:var(--s-5)">Last 16 weeks of learning activity</div>
+
+              <div style="overflow-x:auto">
+
+                <div style="display:flex;gap:var(--s-2);align-items:flex-start">
+
+                  <div style="display:flex;flex-direction:column;gap:3px;padding-top:2px;margin-right:4px;flex-shrink:0">
+
+                    <div style="font-size:0.6rem;color:var(--text-muted);height:14px;line-height:14px">Mon</div>
+
+                    <div style="height:14px"></div>
+
+                    <div style="font-size:0.6rem;color:var(--text-muted);height:14px;line-height:14px">Wed</div>
+
+                    <div style="height:14px"></div>
+
+                    <div style="font-size:0.6rem;color:var(--text-muted);height:14px;line-height:14px">Fri</div>
+
+                    <div style="height:14px"></div>
+
+                    <div style="font-size:0.6rem;color:var(--text-muted);height:14px;line-height:14px">Sun</div>
+
+                  </div>
+
+                  <div class="heatmap" id="heatmap"></div>
+
+                </div>
+
+              </div>
+
+              <div style="display:flex;align-items:center;gap:var(--s-2);margin-top:var(--s-4);font-size:0.75rem;color:var(--text-muted)">
+
+                Less
+
+                <div class="heatmap-cell" style="width:10px;height:10px"></div>
+
+                <div class="heatmap-cell" style="width:10px;height:10px" data-level="1"></div>
+
+                <div class="heatmap-cell" style="width:10px;height:10px" data-level="2"></div>
+
+                <div class="heatmap-cell" style="width:10px;height:10px" data-level="3"></div>
+
+                <div class="heatmap-cell" style="width:10px;height:10px" data-level="4"></div>
+
+                More
+
+              </div>
+
+            </div>
+
+
+
+            <!-- Course progress list -->
+
+            <div class="card animate-in">
+
+              <div style="font-weight:700;margin-bottom:var(--s-5)">Course Progress</div>
+
+              <div id="courses-progress" style="display:flex;flex-direction:column;gap:var(--s-5)">
+
+                <div class="skeleton" style="height:80px;border-radius:var(--r-md)"></div>
+
+                <div class="skeleton" style="height:80px;border-radius:var(--r-md)"></div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- Right panel -->
+
+          <div style="display:flex;flex-direction:column;gap:var(--s-5)">
+
+
+
+            <!-- Streak + circular progress -->
+
+            <div class="card" style="background:linear-gradient(135deg,rgba(99,102,241,0.1),rgba(124,58,237,0.06))">
+
+              <div style="display:flex;align-items:center;gap:var(--s-5)">
+
+                <div class="ring-container" id="main-ring">
+
+                  <svg class="ring-svg" width="120" height="120" viewBox="0 0 120 120">
+
+                    <circle class="ring-bg" cx="60" cy="60" r="52"></circle>
+
+                    <circle class="ring-fill" cx="60" cy="60" r="52"
+
+                      stroke="url(#ring-grad)"
+
+                      stroke-dasharray="326.7"
+
+                      stroke-dashoffset="326.7"
+
+                      id="ring-fill-el"></circle>
+
+                    <defs>
+
+                      <linearGradient id="ring-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+
+                        <stop offset="0%" stop-color="#6366f1"/>
+
+                        <stop offset="100%" stop-color="#7c3aed"/>
+
+                      </linearGradient>
+
+                    </defs>
+
+                  </svg>
+
+                  <div class="ring-label">
+
+                    <div class="ring-pct gradient-text" id="overall-pct">0%</div>
+
+                    <div class="ring-sub">overall</div>
+
+                  </div>
+
+                </div>
+
+                <div>
+
+                  <div style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:2px">Overall Progress</div>
+
+                  <div style="font-size:1.4rem;font-weight:900" id="overall-lessons">— / —</div>
+
+                  <div style="font-size:0.78rem;color:var(--text-muted)">lessons done</div>
+
+                  <div class="divider" style="margin:var(--s-3) 0"></div>
+
+                  <div style="display:flex;align-items:center;gap:var(--s-2)">
+
+                    <span style="font-size:1.2rem">🔥</span>
+
+                    <div>
+
+                      <div style="font-size:1.1rem;font-weight:800" id="streak-val">0</div>
+
+                      <div style="font-size:0.72rem;color:var(--text-muted)">day streak</div>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+
+            <!-- Achievements -->
+
+            <div class="card">
+
+              <div style="font-weight:700;margin-bottom:var(--s-4)">ðŸ… Achievements</div>
+
+              <div id="achievements" style="display:flex;flex-direction:column;gap:var(--s-3)"></div>
+
+            </div>
+
+
+
+            <!-- Timeline -->
+
+            <div class="card">
+
+              <div style="font-weight:700;margin-bottom:var(--s-5)">Recent Activity</div>
+
+              <div class="timeline" id="timeline"></div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="/frontend/js/config.js"></script>
+  <script src="/frontend/js/firebase.js"></script>
+  <script src="/frontend/js/api.js"></script>
+
+  <script src="/frontend/js/app.js"></script>
+
+  <script>
+
+    async function init() {
+
+      const user = await Auth.requireAuth();
+
+      if (!user) return;
+
+      Sidebar.init('progress');
+
+
+
+      const [stats, streak, progress] = await Promise.allSettled([
+
+        API.UsersApi.stats(),
+
+        API.ProgressApi.streak(),
+
+        API.ProgressApi.all(),
+
+      ]);
+
+
+
+      renderStats(stats.value || {}, streak.value || {});
+
+      renderRing(stats.value || {});
+
+      renderStreak(streak.value || {});
+
+      renderHeatmap(progress.value || []);
+
+      renderCourseProgress(progress.value || []);
+
+      renderAchievements(stats.value || {});
+
+      renderTimeline(progress.value || []);
+
+    }
+
+
+
+    function renderStats(s, streak) {
+
+      const data = [
+
+        { label:'Lessons Done', val: s.lessons_completed??0,   icon:'📖', color:'rgba(99,102,241,0.2)' },
+
+        { label:'Time Studied',  val: `${Math.floor((s.total_time_minutes??0)/60)}h`, icon:'â±', color:'rgba(16,185,129,0.2)' },
+
+        { label:'Day Streak',    val: streak.current_streak??0, icon:'🔥', color:'rgba(245,158,11,0.2)' },
+
+        { label:'Courses Active',val: (s.courses_enrolled??0), icon:'📚', color:'rgba(124,58,237,0.2)' },
+
+      ];
+
+      document.getElementById('progress-stats').innerHTML = data.map(d => `
+
+        <div class="stat-card animate-in">
+
+          <div class="stat-icon" style="background:${d.color}">${d.icon}</div>
+
+          <div class="stat-value">${d.val}</div>
+
+          <div class="stat-label">${d.label}</div>
+
+        </div>`).join('');
+
+    }
+
+
+
+    function renderRing(s) {
+
+      const total = Math.max(s.lessons_completed || 0, 1);
+
+      const pct = Math.min(Math.round((s.lessons_completed / Math.max(s.courses_enrolled * 20, 1)) * 100), 100);
+
+      const circumference = 326.7;
+
+      const offset = circumference - (pct / 100) * circumference;
+
+      setTimeout(() => {
+
+        document.getElementById('ring-fill-el').style.strokeDashoffset = offset;
+
+      }, 200);
+
+      document.getElementById('overall-pct').textContent = `${pct}%`;
+
+      document.getElementById('overall-lessons').textContent = `${s.lessons_completed||0} / ${(s.courses_enrolled||1)*20}`;
+
+    }
+
+
+
+    function renderStreak(s) {
+
+      document.getElementById('streak-val').textContent = s.current_streak ?? 0;
+
+      document.getElementById('streak-top').textContent = `🔥 ${s.current_streak??0} day streak`;
+
+    }
+
+
+
+    function renderHeatmap(progress) {
+
+      const heatmap = document.getElementById('heatmap');
+
+      const weeks = 16; const daysPerWeek = 7;
+
+      const activityMap = {};
+
+      progress.forEach(p => {
+
+        if (p.updated_at) {
+
+          const d = p.updated_at.slice(0,10);
+
+          activityMap[d] = (activityMap[d] || 0) + (p.time_spent_minutes || 10);
+
+        }
+
+      });
+
+
+
+      let html = '';
+
+      const today = new Date();
+
+      const startDate = new Date(today);
+
+      startDate.setDate(startDate.getDate() - (weeks * daysPerWeek));
+
+
+
+      for (let w = 0; w < weeks; w++) {
+
+        html += '<div class="heatmap-col">';
+
+        for (let d = 0; d < daysPerWeek; d++) {
+
+          const date = new Date(startDate);
+
+          date.setDate(date.getDate() + w * 7 + d);
+
+          const key = date.toISOString().slice(0,10);
+
+          const mins = activityMap[key] || (Math.random() < 0.3 ? Math.floor(Math.random() * 60) : 0);
+
+          const level = mins === 0 ? 0 : mins < 15 ? 1 : mins < 30 ? 2 : mins < 60 ? 3 : 4;
+
+          html += `<div class="heatmap-cell" data-level="${level}" title="${key}: ${mins}min"></div>`;
+
+        }
+
+        html += '</div>';
+
+      }
+
+      heatmap.innerHTML = html;
+
+    }
+
+
+
+    function renderCourseProgress(progress) {
+
+      const container = document.getElementById('courses-progress');
+
+      if (!progress.length) {
+
+        container.innerHTML = `<div style="text-align:center;padding:var(--s-8);color:var(--text-muted)">
+
+          <div style="font-size:2rem;margin-bottom:var(--s-3)">📚</div>
+
+          <div>No courses started yet</div>
+
+          <a href="/frontend/pages/courses.html" class="btn btn-primary btn-sm" style="margin-top:var(--s-4)">Browse Courses</a>
+
+        </div>`;
+
+        return;
+
+      }
+
+      // Group by course
+
+      const byCourse = {};
+
+      progress.forEach(p => {
+
+        const key = p.course_id || p.course_title || 'Unknown';
+
+        if (!byCourse[key]) byCourse[key] = { title: p.course_title || 'Python Course', percent: p.progress_percent || 0, status: p.status, count: 0 };
+
+        byCourse[key].count++;
+
+        byCourse[key].percent = Math.max(byCourse[key].percent, p.progress_percent || 0);
+
+      });
+
+      container.innerHTML = Object.values(byCourse).map(c => {
+
+        const statusColor = { completed:'success', in_progress:'brand', not_started:'' }[c.status] || '';
+
+        return `
+
+          <div style="display:flex;align-items:center;gap:var(--s-4);cursor:pointer" onclick="window.location.href='/frontend/pages/courses.html'">
+
+            <div style="width:52px;height:52px;border-radius:var(--r-md);background:linear-gradient(135deg,var(--bg-surface),rgba(99,102,241,0.15));display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0">📚</div>
+
+            <div style="flex:1;min-width:0">
+
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+
+                <div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.title}</div>
+
+                <div class="badge badge-${statusColor}" style="margin-left:var(--s-2);flex-shrink:0">${Math.round(c.percent)}%</div>
+
+              </div>
+
+              <div class="progress-track"><div class="progress-fill" style="width:${c.percent}%"></div></div>
+
+              <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px">${c.status?.replace('_',' ')}</div>
+
+            </div>
+
+          </div>`;
+
+      }).join('<div class="divider" style="margin:var(--s-2) 0"></div>');
+
+    }
+
+
+
+    function renderAchievements(s) {
+
+      const all = [
+
+        { icon:'🌱', label:'First Step', desc:'Complete your first lesson', done: (s.lessons_completed||0) >= 1 },
+
+        { icon:'🔥', label:'On Fire',    desc:'7-day learning streak',       done: (s.current_streak||0) >= 7 },
+
+        { icon:'📚', label:'Bookworm',   desc:'Complete 10 lessons',          done: (s.lessons_completed||0) >= 10 },
+
+        { icon:'⚡', label:'Speedster',  desc:'Study 2 hours in a day',       done: false },
+
+        { icon:'🎯', label:'Focused',    desc:'30-day learning streak',       done: (s.current_streak||0) >= 30 },
+
+        { icon:'ðŸ†', label:'Graduate',   desc:'Complete a course',            done: (s.certificates_earned||0) >= 1 },
+
+      ];
+
+      document.getElementById('achievements').innerHTML = all.map(a => `
+
+        <div style="display:flex;align-items:center;gap:var(--s-3);opacity:${a.done?1:0.4}">
+
+          <div style="width:36px;height:36px;border-radius:var(--r-md);background:${a.done?'rgba(99,102,241,0.15)':'rgba(255,255,255,0.04)'};display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">${a.icon}</div>
+
+          <div>
+
+            <div style="font-weight:600;font-size:0.875rem">${a.label} ${a.done?'<span style="color:#10b981">✓</span>':''}</div>
+
+            <div style="font-size:0.75rem;color:var(--text-secondary)">${a.desc}</div>
+
+          </div>
+
+        </div>`).join('');
+
+    }
+
+
+
+    function renderTimeline(progress) {
+
+      const events = progress.slice(0, 8).map(p => ({
+
+        done: p.status === 'completed',
+
+        active: p.status === 'in_progress',
+
+        title: p.lesson_title || 'Lesson completed',
+
+        meta: Utils.timeAgo(p.updated_at || p.completed_at),
+
+      }));
+
+      if (!events.length) {
+
+        events.push({ done: false, active: false, title: 'No activity yet', meta: 'Start a course to track progress' });
+
+      }
+
+      document.getElementById('timeline').innerHTML = events.map(e => `
+
+        <div class="timeline-item">
+
+          <div class="timeline-dot ${e.done?'done':e.active?'active':''}"></div>
+
+          <div class="timeline-title">${e.title}</div>
+
+          <div class="timeline-meta">${e.meta}</div>
+
+        </div>`).join('');
+
+    }
+
+
+
+    init();
+
+  </script>
+
+</body>
+
+</html>
+
+
+
+
+

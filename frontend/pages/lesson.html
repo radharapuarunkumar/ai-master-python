@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Lesson — AI Master Python</title>
+
+  <link rel="stylesheet" href="/frontend/css/design-system.css">
+
+  <link rel="stylesheet" href="/frontend/css/layout.css">
+
+  <style>
+
+    /* Syntax highlighting (simple) */
+
+    .py-kw   { color: #c792ea; }
+
+    .py-fn   { color: #82aaff; }
+
+    .py-str  { color: #c3e88d; }
+
+    .py-cm   { color: #546e7a; }
+
+    .py-num  { color: #f78c6c; }
+
+    .py-op   { color: #89ddff; }
+
+    .py-cls  { color: #ffcb6b; }
+
+
+
+    /* Code editor area */
+
+    .code-editor {
+
+      background: #0d0d1a;
+
+      border: 1px solid rgba(99,102,241,0.2);
+
+      border-radius: var(--r-md);
+
+      overflow: hidden;
+
+    }
+
+    .code-editor textarea {
+
+      width: 100%;
+
+      min-height: 180px;
+
+      background: transparent;
+
+      color: #e2e8f0;
+
+      font-family: var(--font-mono);
+
+      font-size: 0.85rem;
+
+      line-height: 1.7;
+
+      padding: var(--s-4);
+
+      border: none;
+
+      outline: none;
+
+      resize: vertical;
+
+      tab-size: 4;
+
+    }
+
+    .code-output {
+
+      background: #050509;
+
+      border-top: 1px solid rgba(99,102,241,0.15);
+
+      padding: var(--s-4);
+
+      font-family: var(--font-mono);
+
+      font-size: 0.82rem;
+
+      min-height: 60px;
+
+      color: #6ee7b7;
+
+    }
+
+
+
+    /* Navigation between lessons */
+
+    .lesson-nav-bar {
+
+      display: flex; align-items: center; justify-content: space-between;
+
+      padding: var(--s-5) var(--s-8);
+
+      border-top: 1px solid var(--border);
+
+      background: var(--bg-surface);
+
+      position: sticky;
+
+      bottom: 0;
+
+    }
+
+
+
+    /* Lesson content styles */
+
+    .lesson-content h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: var(--s-5); }
+
+    .lesson-content h2 { font-size: 1.25rem; font-weight: 700; margin: var(--s-8) 0 var(--s-4); color: var(--brand-300); }
+
+    .lesson-content h3 { font-size: 1rem; font-weight: 600; margin: var(--s-5) 0 var(--s-3); }
+
+    .lesson-content p { color: var(--text-secondary); margin-bottom: var(--s-4); line-height: 1.8; }
+
+    .lesson-content ul, .lesson-content ol { color: var(--text-secondary); margin-bottom: var(--s-4); padding-left: var(--s-6); }
+
+    .lesson-content li { margin-bottom: var(--s-2); }
+
+    .lesson-content code {
+
+      font-family: var(--font-mono);
+
+      background: rgba(99,102,241,0.1);
+
+      border: 1px solid rgba(99,102,241,0.2);
+
+      padding: 2px 7px; border-radius: 4px;
+
+      font-size: 0.85em; color: var(--brand-300);
+
+    }
+
+    .lesson-content blockquote {
+
+      border-left: 3px solid var(--brand-500);
+
+      padding: var(--s-4) var(--s-5);
+
+      background: rgba(99,102,241,0.06);
+
+      border-radius: 0 var(--r-md) var(--r-md) 0;
+
+      margin: var(--s-5) 0;
+
+      color: var(--text-secondary);
+
+    }
+
+    .tip-box {
+
+      background: rgba(16,185,129,0.08);
+
+      border: 1px solid rgba(16,185,129,0.2);
+
+      border-radius: var(--r-md);
+
+      padding: var(--s-4) var(--s-5);
+
+      margin: var(--s-5) 0;
+
+      font-size: 0.875rem;
+
+      color: #6ee7b7;
+
+    }
+
+    .tip-box strong { color: #34d399; }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="app-layout">
+
+    <div id="sidebar-placeholder"></div>
+
+
+
+    <div class="main-content">
+
+      <!-- Topbar -->
+
+      <div class="topbar">
+
+        <div style="display:flex;align-items:center;gap:var(--s-4)">
+
+          <button class="hamburger" id="hamburger-btn"><span></span><span></span><span></span></button>
+
+          <a href="/frontend/pages/courses.html" class="btn btn-ghost btn-sm">â† Courses</a>
+
+          <div class="topbar-title" id="course-breadcrumb">Loading…</div>
+
+        </div>
+
+        <div class="topbar-actions">
+
+          <div id="lesson-type-badge"></div>
+
+          <button class="btn btn-primary btn-sm" id="mark-complete-btn" onclick="markComplete()" style="display:none">
+
+            Mark Complete ✓
+
+          </button>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="page-content">
+
+        <div class="lesson-layout">
+
+
+
+          <!-- Main lesson content -->
+
+          <div>
+
+            <!-- Lesson header -->
+
+            <div id="lesson-header" class="lesson-body" style="margin-bottom:var(--s-4)">
+
+              <div class="lesson-header">
+
+                <div class="skeleton" style="height:14px;width:120px;margin-bottom:8px"></div>
+
+                <div class="skeleton" style="height:28px;width:70%"></div>
+
+              </div>
+
+              <div class="lesson-content" style="padding:var(--s-8)">
+
+                <div class="skeleton" style="height:14px;margin-bottom:8px"></div>
+
+                <div class="skeleton" style="height:14px;width:90%;margin-bottom:8px"></div>
+
+                <div class="skeleton" style="height:14px;width:80%"></div>
+
+              </div>
+
+            </div>
+
+
+
+            <!-- Code exercise -->
+
+            <div class="card animate-in" id="exercise-panel" style="display:none">
+
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--s-4)">
+
+                <div style="font-weight:700">💻 Exercise</div>
+
+                <div style="display:flex;gap:var(--s-2)">
+
+                  <button class="btn btn-secondary btn-sm" onclick="resetCode()">Reset</button>
+
+                  <button class="btn btn-primary btn-sm" onclick="runCode()">▶ Run</button>
+
+                </div>
+
+              </div>
+
+              <div id="exercise-prompt" style="color:var(--text-secondary);font-size:0.875rem;margin-bottom:var(--s-4)"></div>
+
+              <div class="code-editor">
+
+                <div class="code-block-header">
+
+                  <span>ðŸ python</span>
+
+                  <button class="btn btn-ghost btn-sm" onclick="copyCode()">Copy</button>
+
+                </div>
+
+                <textarea id="code-input" spellcheck="false" placeholder="# Write your Python code here…"></textarea>
+
+                <div class="code-output" id="code-output" style="display:none"></div>
+
+              </div>
+
+              <div id="exercise-hint" style="display:none;margin-top:var(--s-4)" class="tip-box">
+
+                <strong>💡 Hint:</strong> <span id="hint-text"></span>
+
+              </div>
+
+              <button class="btn btn-ghost btn-sm" style="margin-top:var(--s-3)" onclick="toggleHint()" id="hint-btn">Show Hint</button>
+
+            </div>
+
+
+
+            <!-- Quiz panel -->
+
+            <div class="card animate-in" id="quiz-panel" style="display:none">
+
+              <div style="font-weight:700;margin-bottom:var(--s-5)">â“ Quiz</div>
+
+              <div id="quiz-content"></div>
+
+            </div>
+
+
+
+            <!-- Lesson nav -->
+
+            <div class="lesson-nav-bar" style="margin-top:var(--s-6);background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);position:static">
+
+              <button class="btn btn-secondary" id="prev-btn" onclick="navigate(-1)" disabled>â† Previous</button>
+
+              <div style="text-align:center;font-size:0.82rem;color:var(--text-secondary)" id="lesson-pos">Lesson — / —</div>
+
+              <button class="btn btn-primary" id="next-btn" onclick="navigate(1)">Next →</button>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- Sidebar: module tree -->
+
+          <div class="lesson-sidebar-panel">
+
+            <!-- Course progress card -->
+
+            <div class="card">
+
+              <div style="font-size:0.78rem;font-weight:600;color:var(--text-secondary);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:var(--s-3)">Course Progress</div>
+
+              <div class="progress-track" style="margin-bottom:var(--s-2)">
+
+                <div class="progress-fill" id="course-prog-bar" style="width:0%"></div>
+
+              </div>
+
+              <div style="display:flex;justify-content:space-between;font-size:0.8rem">
+
+                <span id="prog-lessons" style="color:var(--text-secondary)">— / — lessons</span>
+
+                <span id="prog-pct" style="font-weight:700;color:var(--brand-300)">0%</span>
+
+              </div>
+
+            </div>
+
+
+
+            <!-- Module tree -->
+
+            <div class="card" style="padding:0;overflow:hidden">
+
+              <div style="padding:var(--s-4) var(--s-5);border-bottom:1px solid var(--border);font-weight:700;font-size:0.9rem" id="sidebar-course-title">Course Modules</div>
+
+              <div id="module-tree" style="max-height:500px;overflow-y:auto;padding:var(--s-2)"></div>
+
+            </div>
+
+
+
+            <!-- AI Ask button -->
+
+            <div class="card-glass" style="text-align:center">
+
+              <div style="font-size:1.5rem;margin-bottom:var(--s-2)">🤖</div>
+
+              <div style="font-weight:600;margin-bottom:4px">Stuck? Ask AI</div>
+
+              <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:var(--s-4)">Get instant help from your AI tutor about this lesson</div>
+
+              <a href="/frontend/pages/chat.html" class="btn btn-primary btn-sm" style="width:100%">Open AI Chat</a>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="/frontend/js/config.js"></script>
+  <script src="/frontend/js/firebase.js"></script>
+  <script src="/frontend/js/api.js"></script>
+
+  <script src="/frontend/js/app.js"></script>
+
+  <script>
+
+    const params = new URLSearchParams(window.location.search);
+
+    const courseSlug = params.get('course');
+
+    const startLesson = params.get('lesson');
+
+
+
+    let courseData = null;
+
+    let modules = [];
+
+    let allLessons = [];
+
+    let currentLessonIdx = 0;
+
+    let currentProgress = null;
+
+
+
+    async function init() {
+
+      const user = await Auth.requireAuth();
+
+      if (!user) return;
+
+      Sidebar.init('courses');
+
+      await loadCourse();
+
+    }
+
+
+
+    async function loadCourse() {
+
+      try {
+
+        if (courseSlug) {
+
+          courseData = await API.CoursesApi.get(courseSlug);
+
+          modules = courseData.modules || [];
+
+          // Flatten all lessons
+
+          for (const mod of modules) {
+
+            try {
+
+              const lessons = await API.CoursesApi.listLessons(mod.id);
+
+              mod.lessons = lessons || [];
+
+              allLessons.push(...mod.lessons.map(l => ({ ...l, module: mod })));
+
+            } catch { mod.lessons = []; }
+
+          }
+
+        }
+
+      } catch {
+
+        // Use demo data
+
+        courseData = getDemoCourse();
+
+        modules = courseData.modules;
+
+        allLessons = modules.flatMap(m => m.lessons.map(l => ({ ...l, module: m })));
+
+      }
+
+
+
+      document.getElementById('course-breadcrumb').textContent = courseData?.title || 'Course';
+
+      document.getElementById('sidebar-course-title').textContent = courseData?.title || 'Modules';
+
+
+
+      // Load progress
+
+      try {
+
+        if (courseData?.id) {
+
+          currentProgress = await API.ProgressApi.course(courseData.id);
+
+          updateProgressUI(currentProgress);
+
+        }
+
+      } catch {}
+
+
+
+      // Start at specified lesson or first
+
+      const startIdx = startLesson ? allLessons.findIndex(l => l.id === startLesson) : 0;
+
+      currentLessonIdx = Math.max(0, startIdx);
+
+
+
+      renderModuleTree();
+
+      showLesson(currentLessonIdx);
+
+    }
+
+
+
+    function renderModuleTree() {
+
+      const tree = document.getElementById('module-tree');
+
+      tree.innerHTML = modules.map((mod, mi) => `
+
+        <div style="padding:var(--s-2) var(--s-3)">
+
+          <div style="font-size:0.72rem;font-weight:600;color:var(--text-muted);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:var(--s-1)">
+
+            Day ${mod.day_number || mi+1} · ${mod.title}
+
+          </div>
+
+          ${(mod.lessons || []).map(l => {
+
+            const idx = allLessons.findIndex(al => al.id === l.id);
+
+            const isDone = currentProgress?.completed_lesson_ids?.includes(l.id) || l._demo_done;
+
+            const isActive = idx === currentLessonIdx;
+
+            return `
+
+              <div class="module-tree-item ${isActive?'active':''}" onclick="showLesson(${idx})">
+
+                <div class="lesson-check ${isDone?'done':''}">${isDone?'✓':''}</div>
+
+                <span style="flex:1">${l.title}</span>
+
+                <span style="font-size:0.7rem;color:var(--text-muted)">${Utils.lessonTypeIcon(l.lesson_type)}</span>
+
+              </div>`;
+
+          }).join('')}
+
+        </div>`
+
+      ).join('');
+
+    }
+
+
+
+    async function showLesson(idx) {
+
+      if (idx < 0 || idx >= allLessons.length) return;
+
+      currentLessonIdx = idx;
+
+
+
+      const lesson = allLessons[idx];
+
+      document.getElementById('lesson-pos').textContent = `Lesson ${idx+1} / ${allLessons.length}`;
+
+      document.getElementById('prev-btn').disabled = idx === 0;
+
+      document.getElementById('next-btn').textContent = idx === allLessons.length - 1 ? 'Finish ✓' : 'Next →';
+
+
+
+      // Type badge
+
+      const typeIcon = Utils.lessonTypeIcon(lesson.lesson_type);
+
+      document.getElementById('lesson-type-badge').innerHTML = `<div class="badge badge-brand">${typeIcon} ${lesson.lesson_type || 'reading'}</div>`;
+
+
+
+      // Mark started
+
+      try { if (lesson.id && lesson.id !== 'demo') await API.ProgressApi.start(lesson.id); } catch {}
+
+
+
+      // Fetch full lesson or use cached content
+
+      let fullLesson = lesson;
+
+      try {
+
+        if (lesson.id && lesson.id !== 'demo') fullLesson = await API.CoursesApi.getLesson(lesson.id);
+
+      } catch {}
+
+
+
+      renderLessonContent(fullLesson);
+
+      renderModuleTree();
+
+      window.scrollTo(0, 0);
+
+    }
+
+
+
+    function renderLessonContent(lesson) {
+
+      const header = document.getElementById('lesson-header');
+
+      header.innerHTML = `
+
+        <div class="lesson-header">
+
+          <div style="display:flex;align-items:center;gap:var(--s-3);margin-bottom:var(--s-3)">
+
+            <div class="badge badge-brand">${lesson.module?.title || 'Module'}</div>
+
+            <div class="badge badge-${lesson.is_premium?'purple':'success'}">${lesson.is_premium?'â­ Premium':'Free'}</div>
+
+            ${lesson.estimated_minutes ? `<span style="font-size:0.78rem;color:var(--text-muted)">â± ${lesson.estimated_minutes} min</span>` : ''}
+
+          </div>
+
+          <h1 style="font-size:1.5rem;font-weight:800;letter-spacing:-0.02em">${lesson.title}</h1>
+
+        </div>
+
+        <div class="lesson-content">
+
+          ${lesson.content_html || renderDemoContent(lesson)}
+
+        </div>`;
+
+
+
+      // Show complete button
+
+      document.getElementById('mark-complete-btn').style.display = 'inline-flex';
+
+
+
+      // Show exercise if applicable
+
+      const exPanel = document.getElementById('exercise-panel');
+
+      if (lesson.exercise && Object.keys(lesson.exercise).length > 0) {
+
+        const ex = lesson.exercise;
+
+        document.getElementById('exercise-prompt').textContent = ex.prompt || 'Complete the exercise below:';
+
+        document.getElementById('code-input').value = ex.starter_code || '# Write your solution here\n';
+
+        document.getElementById('hint-text').textContent = ex.hint || '';
+
+        exPanel.style.display = 'block';
+
+        window._exercise = ex;
+
+      } else if (lesson.lesson_type === 'exercise' || lesson.lesson_type === 'project') {
+
+        document.getElementById('exercise-prompt').textContent = 'Complete the exercise for this lesson:';
+
+        document.getElementById('code-input').value = lesson.starter_code || '# Write your solution here\n';
+
+        exPanel.style.display = 'block';
+
+      } else {
+
+        exPanel.style.display = 'none';
+
+      }
+
+
+
+      // Quiz
+
+      const quizPanel = document.getElementById('quiz-panel');
+
+      if (lesson.lesson_type === 'quiz' && lesson.exercise) {
+
+        renderQuiz(lesson.exercise);
+
+        quizPanel.style.display = 'block';
+
+        exPanel.style.display = 'none';
+
+      } else {
+
+        quizPanel.style.display = 'none';
+
+      }
+
+    }
+
+
+
+    function renderDemoContent(lesson) {
+
+      // Fallback content for demo mode
+
+      return `
+
+        <h2>Introduction</h2>
+
+        <p>Welcome to <strong>${lesson.title}</strong>. In this lesson, you'll learn one of the most important concepts in Python programming.</p>
+
+        <blockquote>
+
+          "The best way to learn programming is to write code." — Guido van Rossum
+
+        </blockquote>
+
+        <h2>Key Concepts</h2>
+
+        <p>Python is designed for readability and simplicity. Here's what makes it powerful:</p>
+
+        <ul>
+
+          <li>Clean, expressive syntax that reads like English</li>
+
+          <li>Dynamic typing with optional type hints</li>
+
+          <li>First-class functions and closures</li>
+
+          <li>Rich standard library and ecosystem</li>
+
+        </ul>
+
+        <h2>Code Example</h2>
+
+        <div class="code-block-header"><span>ðŸ python</span></div>
+
+        <div class="code-block" style="border-radius:0 0 var(--r-md) var(--r-md)">
+
+          <pre style="margin:0;color:#e2e8f0"># Example: Python is expressive and readable
+
+numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+
+
+# List comprehension — pythonic filtering
+
+evens = [n for n in numbers if n % 2 == 0]
+
+squares = [n**2 for n in evens]
+
+
+
+print(f"Even numbers: {evens}")      # [2, 4, 6, 8, 10]
+
+print(f"Their squares: {squares}")   # [4, 16, 36, 64, 100]</pre>
+
+        </div>
+
+        <div class="tip-box" style="margin-top:var(--s-5)">
+
+          <strong>💡 Pro Tip:</strong> Always test your code in small increments. The Python REPL is your best friend for quick experiments.
+
+        </div>
+
+        <h2>Practice</h2>
+
+        <p>Try the exercise below to test your understanding. Remember, the best learning happens when you write code yourself!</p>`;
+
+    }
+
+
+
+    async function markComplete() {
+
+      const lesson = allLessons[currentLessonIdx];
+
+      const btn = document.getElementById('mark-complete-btn');
+
+      btn.disabled = true;
+
+      btn.innerHTML = '<div class="spinner"></div> Saving…';
+
+      try {
+
+        if (lesson.id && lesson.id !== 'demo') {
+
+          await API.ProgressApi.complete(lesson.id, { time_spent_minutes: 10 });
+
+        }
+
+        lesson._demo_done = true;
+
+        Toast.success('Lesson completed! 🎉');
+
+        btn.innerHTML = '✓ Completed';
+
+        btn.style.background = 'rgba(16,185,129,0.2)';
+
+        btn.style.borderColor = '#10b981';
+
+        btn.style.color = '#10b981';
+
+
+
+        // Auto-advance after 1.5s
+
+        setTimeout(() => navigate(1), 1500);
+
+        renderModuleTree();
+
+      } catch (err) {
+
+        Toast.error('Could not save progress');
+
+        btn.disabled = false;
+
+        btn.innerHTML = 'Mark Complete ✓';
+
+      }
+
+    }
+
+
+
+    function navigate(dir) {
+
+      showLesson(currentLessonIdx + dir);
+
+    }
+
+
+
+    function updateProgressUI(prog) {
+
+      if (!prog) return;
+
+      const pct = prog.overall_percent || 0;
+
+      document.getElementById('course-prog-bar').style.width = `${pct}%`;
+
+      document.getElementById('prog-lessons').textContent = `${prog.lessons_completed||0} / ${prog.total_lessons||0} lessons`;
+
+      document.getElementById('prog-pct').textContent = `${Math.round(pct)}%`;
+
+    }
+
+
+
+    /* Exercise helpers */
+
+    function runCode() {
+
+      const code = document.getElementById('code-input').value;
+
+      const output = document.getElementById('code-output');
+
+      output.style.display = 'block';
+
+      output.textContent = '▶ Running…';
+
+      // Simulate execution (real implementation needs a backend code runner)
+
+      setTimeout(() => {
+
+        output.textContent = `$ python solution.py\n[Code executed successfully]\nNote: Connect a code execution backend for live results.`;
+
+      }, 600);
+
+    }
+
+    function resetCode() {
+
+      document.getElementById('code-input').value = window._exercise?.starter_code || '# Write your solution here\n';
+
+      document.getElementById('code-output').style.display = 'none';
+
+    }
+
+    function copyCode() {
+
+      navigator.clipboard.writeText(document.getElementById('code-input').value);
+
+      Toast.success('Copied!');
+
+    }
+
+    function toggleHint() {
+
+      const hint = document.getElementById('exercise-hint');
+
+      const btn = document.getElementById('hint-btn');
+
+      const shown = hint.style.display !== 'none';
+
+      hint.style.display = shown ? 'none' : 'block';
+
+      btn.textContent = shown ? 'Show Hint' : 'Hide Hint';
+
+    }
+
+
+
+    function renderQuiz(quiz) {
+
+      const opts = quiz.options || ['Option A', 'Option B', 'Option C', 'Option D'];
+
+      document.getElementById('quiz-content').innerHTML = `
+
+        <p style="font-size:1rem;font-weight:600;margin-bottom:var(--s-5)">${quiz.question || 'What is the output?'}</p>
+
+        <div style="display:flex;flex-direction:column;gap:var(--s-3)" id="quiz-options">
+
+          ${opts.map((o, i) => `
+
+            <button class="btn btn-secondary" style="justify-content:flex-start;text-align:left" onclick="answerQuiz(${i}, ${quiz.correct_idx || 0}, this)">
+
+              <span style="font-weight:700;color:var(--brand-400);min-width:24px">${String.fromCharCode(65+i)}.</span> ${o}
+
+            </button>`).join('')}
+
+        </div>`;
+
+    }
+
+    function answerQuiz(selected, correct, el) {
+
+      document.querySelectorAll('#quiz-options button').forEach((b, i) => {
+
+        b.disabled = true;
+
+        if (i === correct) { b.style.borderColor = '#10b981'; b.style.color = '#10b981'; }
+
+        if (i === selected && selected !== correct) { b.style.borderColor = '#ef4444'; b.style.color = '#ef4444'; }
+
+      });
+
+      if (selected === correct) Toast.success('Correct! 🎉');
+
+      else Toast.error('Not quite — the correct answer is highlighted in green.');
+
+    }
+
+
+
+    function getDemoCourse() {
+
+      const lessons = (moduleTitle, dayNum, prefix) => Array(4).fill(0).map((_, i) => ({
+
+        id: `demo-${prefix}-${i}`, title: [`Introduction to ${prefix}`, `${prefix} in Practice`, `Advanced ${prefix} Patterns`, `${prefix} Project`][i],
+
+        lesson_type: ['reading','exercise','reading','project'][i], estimated_minutes: [8,15,10,25][i], is_premium: i > 1,
+
+        module: { title: moduleTitle, day_number: dayNum }
+
+      }));
+
+      return {
+
+        id: 'demo', title: 'Python Foundations', slug: 'python-foundations',
+
+        modules: [
+
+          { id:'m1', title:'Variables & Data Types', day_number:1, lessons: lessons('Variables & Data Types', 1, 'Variables') },
+
+          { id:'m2', title:'Control Flow', day_number:3, lessons: lessons('Control Flow', 3, 'Loops') },
+
+          { id:'m3', title:'Functions', day_number:7, lessons: lessons('Functions', 7, 'Functions') },
+
+          { id:'m4', title:'Object-Oriented Python', day_number:15, lessons: lessons('OOP', 15, 'Classes') },
+
+        ]
+
+      };
+
+    }
+
+
+
+    init();
+
+  </script>
+
+</body>
+
+</html>
+
+
+
+
+

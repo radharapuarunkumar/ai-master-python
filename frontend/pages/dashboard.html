@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Dashboard — AI Master Python</title>
+
+  <meta name="description" content="Your AI Master Python dashboard. Track progress, continue courses, and access AI tools.">
+
+  <link rel="stylesheet" href="/frontend/css/design-system.css">
+
+  <link rel="stylesheet" href="/frontend/css/layout.css">
+
+  <style>
+
+    /* Streak fire animation */
+
+    .streak-card {
+
+      background: linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(239,68,68,0.08) 100%);
+
+      border: 1px solid rgba(245,158,11,0.25);
+
+    }
+
+    .streak-fire {
+
+      font-size: 2.5rem;
+
+      animation: float 3s ease-in-out infinite;
+
+      display: block;
+
+    }
+
+    /* Continue learning card */
+
+    .continue-card {
+
+      background: linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(124,58,237,0.08) 100%);
+
+      border: 1px solid rgba(99,102,241,0.25);
+
+      border-radius: var(--r-xl);
+
+      padding: var(--s-6) var(--s-8);
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+      gap: var(--s-6);
+
+      cursor: pointer;
+
+      transition: all var(--t-base);
+
+    }
+
+    .continue-card:hover {
+
+      transform: translateY(-2px);
+
+      box-shadow: 0 8px 30px rgba(99,102,241,0.2);
+
+    }
+
+    /* Activity chart */
+
+    .activity-bar {
+
+      flex: 1;
+
+      border-radius: 3px;
+
+      background: rgba(99,102,241,0.12);
+
+      position: relative;
+
+      cursor: pointer;
+
+      transition: all var(--t-fast);
+
+      min-width: 12px;
+
+      max-width: 30px;
+
+    }
+
+    .activity-bar:hover { background: rgba(99,102,241,0.25); }
+
+    .activity-bar-fill {
+
+      position: absolute;
+
+      bottom: 0; left: 0; right: 0;
+
+      border-radius: 3px;
+
+      background: linear-gradient(to top, var(--brand-600), var(--brand-400));
+
+      transition: height 1s cubic-bezier(0.4,0,0.2,1);
+
+    }
+
+    .activity-bar.today .activity-bar-fill { background: linear-gradient(to top, var(--accent-a), var(--brand-300)); }
+
+    /* Beta features grid */
+
+    .beta-card {
+
+      background: var(--bg-card);
+
+      border: 1px solid var(--border);
+
+      border-radius: var(--r-lg);
+
+      padding: var(--s-5);
+
+      display: flex;
+
+      align-items: center;
+
+      gap: var(--s-4);
+
+      cursor: pointer;
+
+      transition: all var(--t-base);
+
+      text-decoration: none;
+
+      color: inherit;
+
+    }
+
+    .beta-card:hover {
+
+      background: var(--bg-card-hover);
+
+      border-color: var(--border-brand);
+
+      transform: translateY(-2px);
+
+    }
+
+    .beta-icon {
+
+      width: 48px; height: 48px;
+
+      border-radius: var(--r-md);
+
+      display: flex; align-items: center; justify-content: center;
+
+      font-size: 1.4rem;
+
+      flex-shrink: 0;
+
+    }
+
+    .recent-lesson {
+
+      display: flex; align-items: center; gap: var(--s-4);
+
+      padding: var(--s-4) 0;
+
+      border-bottom: 1px solid var(--border);
+
+    }
+
+    .recent-lesson:last-child { border-bottom: none; }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="app-layout">
+
+    <div id="sidebar-placeholder"></div>
+
+
+
+    <div class="main-content">
+
+      <!-- Topbar -->
+
+      <div class="topbar">
+
+        <div style="display:flex;align-items:center;gap:var(--s-4)">
+
+          <button class="hamburger" id="hamburger-btn" aria-label="Menu">
+
+            <span></span><span></span><span></span>
+
+          </button>
+
+          <div class="topbar-title" id="topbar-greeting">Dashboard</div>
+
+        </div>
+
+        <div class="topbar-actions">
+
+          <div class="search-bar">
+
+            <span style="color:var(--text-muted)">ðŸ”</span>
+
+            <input placeholder="Search courses, lessons…" id="global-search">
+
+          </div>
+
+          <div class="badge badge-purple" id="streak-badge" style="cursor:default">
+
+            🔥 <span id="streak-count">—</span> day streak
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="page-content">
+
+        <!-- Continue Learning Banner -->
+
+        <div class="continue-card animate-in" id="continue-banner" style="margin-bottom:var(--s-6);display:none" onclick="window.location.href='/frontend/pages/courses.html'">
+
+          <div>
+
+            <div class="badge badge-brand" style="margin-bottom:var(--s-2)">Continue where you left off</div>
+
+            <div style="font-size:1.15rem;font-weight:700;margin-bottom:4px" id="continue-title">Loading…</div>
+
+            <div style="font-size:0.85rem;color:var(--text-secondary)" id="continue-meta"></div>
+
+          </div>
+
+          <div style="display:flex;align-items:center;gap:var(--s-4)">
+
+            <div style="text-align:right">
+
+              <div style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:4px" id="continue-pct"></div>
+
+              <div class="progress-track" style="width:120px"><div class="progress-fill" id="continue-bar" style="width:0%"></div></div>
+
+            </div>
+
+            <div class="btn btn-primary btn-sm">Resume ▶</div>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- Stats grid -->
+
+        <div class="grid-4 animate-in stagger" id="stats-grid" style="margin-bottom:var(--s-6)">
+
+          <div class="stat-card skeleton" style="height:110px"></div>
+
+          <div class="stat-card skeleton" style="height:110px"></div>
+
+          <div class="stat-card skeleton" style="height:110px"></div>
+
+          <div class="stat-card skeleton" style="height:110px"></div>
+
+        </div>
+
+
+
+        <div style="display:grid;grid-template-columns:1fr 340px;gap:var(--s-6);align-items:start">
+
+          <!-- Left column -->
+
+          <div style="display:flex;flex-direction:column;gap:var(--s-6)">
+
+
+
+            <!-- Activity chart -->
+
+            <div class="card animate-in">
+
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--s-5)">
+
+                <div>
+
+                  <div style="font-weight:700;font-size:1rem">Learning Activity</div>
+
+                  <div style="font-size:0.8rem;color:var(--text-secondary)">Minutes studied per day (last 14 days)</div>
+
+                </div>
+
+                <div class="badge badge-success" id="avg-badge">— avg/day</div>
+
+              </div>
+
+              <div style="display:flex;align-items:flex-end;gap:6px;height:120px" id="activity-chart">
+
+                <!-- Rendered by JS -->
+
+              </div>
+
+              <div id="chart-labels" style="display:flex;gap:6px;margin-top:6px"></div>
+
+            </div>
+
+
+
+            <!-- Recent courses -->
+
+            <div class="card animate-in">
+
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--s-5)">
+
+                <div style="font-weight:700">My Courses</div>
+
+                <a href="/frontend/pages/courses.html" class="btn btn-ghost btn-sm">View all →</a>
+
+              </div>
+
+              <div id="my-courses-list">
+
+                <div style="display:flex;flex-direction:column;gap:var(--s-3)">
+
+                  <div class="skeleton" style="height:72px;border-radius:var(--r-md)"></div>
+
+                  <div class="skeleton" style="height:72px;border-radius:var(--r-md)"></div>
+
+                  <div class="skeleton" style="height:72px;border-radius:var(--r-md)"></div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- Right column -->
+
+          <div style="display:flex;flex-direction:column;gap:var(--s-5)">
+
+
+
+            <!-- Streak card -->
+
+            <div class="card streak-card">
+
+              <div style="display:flex;align-items:center;justify-content:space-between">
+
+                <div>
+
+                  <div style="font-size:0.78rem;font-weight:600;color:#f59e0b;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:4px">Current Streak</div>
+
+                  <div style="font-size:2.5rem;font-weight:900;letter-spacing:-0.03em" id="streak-display">—</div>
+
+                  <div style="font-size:0.82rem;color:var(--text-secondary)">days in a row</div>
+
+                </div>
+
+                <div class="streak-fire">🔥</div>
+
+              </div>
+
+              <div class="divider" style="margin:var(--s-4) 0"></div>
+
+              <div style="display:flex;justify-content:space-between">
+
+                <div style="text-align:center">
+
+                  <div style="font-size:1.1rem;font-weight:700" id="longest-streak">—</div>
+
+                  <div style="font-size:0.72rem;color:var(--text-secondary)">Best streak</div>
+
+                </div>
+
+                <div style="text-align:center">
+
+                  <div style="font-size:1.1rem;font-weight:700" id="last-activity">—</div>
+
+                  <div style="font-size:0.72rem;color:var(--text-secondary)">Last activity</div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+
+            <!-- Beta AI tools -->
+
+            <div class="card">
+
+              <div style="font-weight:700;margin-bottom:var(--s-4);display:flex;align-items:center;gap:var(--s-2)">
+
+                ✨ AI Tools <div class="badge badge-purple">Beta</div>
+
+              </div>
+
+              <div style="display:flex;flex-direction:column;gap:var(--s-2)">
+
+                <a href="/frontend/pages/chat.html" class="beta-card">
+
+                  <div class="beta-icon" style="background:rgba(99,102,241,0.15)">💬</div>
+
+                  <div>
+
+                    <div style="font-weight:600;font-size:0.9rem">AI Chat</div>
+
+                    <div style="font-size:0.78rem;color:var(--text-secondary)">Ask anything about Python</div>
+
+                  </div>
+
+                  <div style="margin-left:auto;color:var(--text-muted)">→</div>
+
+                </a>
+
+                <a href="/frontend/pages/tutor.html" class="beta-card">
+
+                  <div class="beta-icon" style="background:rgba(16,185,129,0.15)">🎙</div>
+
+                  <div>
+
+                    <div style="font-weight:600;font-size:0.9rem">Live AI Tutor</div>
+
+                    <div style="font-size:0.78rem;color:var(--text-secondary)">Video session with AI</div>
+
+                  </div>
+
+                  <div style="margin-left:auto;color:var(--text-muted)">→</div>
+
+                </a>
+
+                <a href="/frontend/pages/interview.html" class="beta-card">
+
+                  <div class="beta-icon" style="background:rgba(245,158,11,0.15)">🎯</div>
+
+                  <div>
+
+                    <div style="font-weight:600;font-size:0.9rem">Interview Simulator</div>
+
+                    <div style="font-size:0.78rem;color:var(--text-secondary)">Mock Python interview</div>
+
+                  </div>
+
+                  <div style="margin-left:auto;color:var(--text-muted)">→</div>
+
+                </a>
+
+              </div>
+
+            </div>
+
+
+
+            <!-- Quick links -->
+
+            <div class="card">
+
+              <div style="font-weight:700;margin-bottom:var(--s-4)">Quick Actions</div>
+
+              <div style="display:flex;flex-direction:column;gap:var(--s-2)">
+
+                <a href="/frontend/pages/courses.html" class="btn btn-secondary btn-sm" style="justify-content:flex-start;gap:var(--s-3)">📚 Browse Courses</a>
+
+                <a href="/frontend/pages/progress.html" class="btn btn-secondary btn-sm" style="justify-content:flex-start;gap:var(--s-3)">📈 View Progress</a>
+
+                <a href="/frontend/pages/resume.html"   class="btn btn-secondary btn-sm" style="justify-content:flex-start;gap:var(--s-3)">📄 Build Resume</a>
+
+                <a href="/frontend/pages/certificates.html" class="btn btn-secondary btn-sm" style="justify-content:flex-start;gap:var(--s-3)">ðŸ† Certificates</a>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="/frontend/js/config.js"></script>
+  <script src="/frontend/js/firebase.js"></script>
+  <script src="/frontend/js/api.js"></script>
+
+  <script src="/frontend/js/app.js"></script>
+
+  <script>
+
+    async function init() {
+
+      const user = await Auth.requireAuth();
+
+      if (!user) return;
+
+
+
+      // Greet
+
+      const hour = new Date().getHours();
+
+      const greet = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+
+      document.getElementById('topbar-greeting').textContent = `${greet}, ${user.full_name?.split(' ')[0]} 👋`;
+
+
+
+      // Sidebar
+
+      Sidebar.init('dashboard');
+
+
+
+      // Load data in parallel
+
+      const [stats, streak, progress] = await Promise.allSettled([
+
+        API.UsersApi.stats(),
+
+        API.ProgressApi.streak(),
+
+        API.ProgressApi.all(),
+
+      ]);
+
+
+
+      renderStats(stats.value || {});
+
+      renderStreak(streak.value || {});
+
+      renderProgress(progress.value || []);
+
+      renderActivityChart(progress.value || []);
+
+    }
+
+
+
+    function renderStats(s) {
+
+      const cfg = [
+
+        { label:'Lessons Completed', val: s.lessons_completed??0,    icon:'📖', color:'rgba(99,102,241,0.2)',   suffix:'' },
+
+        { label:'Hours Studied',     val: Math.floor((s.total_time_minutes??0)/60), icon:'â±', color:'rgba(16,185,129,0.2)',  suffix:'h' },
+
+        { label:'Day Streak',        val: s.current_streak??0,       icon:'🔥', color:'rgba(245,158,11,0.2)',  suffix:' days' },
+
+        { label:'Certificates',      val: s.certificates_earned??0,  icon:'ðŸ†', color:'rgba(124,58,237,0.2)', suffix:'' },
+
+      ];
+
+      document.getElementById('stats-grid').innerHTML = cfg.map(c => `
+
+        <div class="stat-card animate-in">
+
+          <div class="stat-icon" style="background:${c.color}">${c.icon}</div>
+
+          <div class="stat-value">${c.val}<small style="font-size:1rem">${c.suffix}</small></div>
+
+          <div class="stat-label">${c.label}</div>
+
+        </div>`).join('');
+
+    }
+
+
+
+    function renderStreak(s) {
+
+      document.getElementById('streak-display').textContent = s.current_streak ?? 0;
+
+      document.getElementById('longest-streak').textContent = s.longest_streak ?? 0;
+
+      document.getElementById('streak-count').textContent = s.current_streak ?? 0;
+
+      document.getElementById('streak-badge').innerHTML = `🔥 ${s.current_streak??0} day streak`;
+
+      if (s.last_activity_date) {
+
+        document.getElementById('last-activity').textContent = Utils.timeAgo(s.last_activity_date);
+
+      }
+
+    }
+
+
+
+    function renderProgress(progressList) {
+
+      const list = document.getElementById('my-courses-list');
+
+      if (!progressList.length) {
+
+        list.innerHTML = `
+
+          <div style="text-align:center;padding:var(--s-8);color:var(--text-muted)">
+
+            <div style="font-size:2rem;margin-bottom:var(--s-3)">🎓</div>
+
+            <div style="font-weight:600;margin-bottom:4px">No courses yet</div>
+
+            <a href="/frontend/pages/courses.html" class="btn btn-primary btn-sm" style="margin-top:var(--s-3)">Browse Courses</a>
+
+          </div>`;
+
+        return;
+
+      }
+
+
+
+      // Show continue banner for last in-progress
+
+      const inProgress = progressList.filter(p => p.status === 'in_progress');
+
+      if (inProgress.length) {
+
+        const latest = inProgress[0];
+
+        document.getElementById('continue-banner').style.display = 'flex';
+
+        document.getElementById('continue-title').textContent = latest.course_title || 'Continue Learning';
+
+        document.getElementById('continue-meta').textContent = `Last studied ${Utils.timeAgo(latest.updated_at)}`;
+
+        document.getElementById('continue-pct').textContent = `${Math.round(latest.progress_percent)}% complete`;
+
+        document.getElementById('continue-bar').style.width = `${latest.progress_percent}%`;
+
+      }
+
+
+
+      list.innerHTML = progressList.slice(0,5).map(p => `
+
+        <div class="recent-lesson" onclick="window.location.href='/frontend/pages/courses.html'" style="cursor:pointer">
+
+          <div style="width:44px;height:44px;border-radius:var(--r-md);background:linear-gradient(135deg,var(--bg-surface),rgba(99,102,241,0.15));display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">📚</div>
+
+          <div style="flex:1;min-width:0">
+
+            <div style="font-weight:600;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.course_title || 'Python Course'}</div>
+
+            <div class="progress-track" style="margin-top:6px"><div class="progress-fill" style="width:${p.progress_percent||0}%"></div></div>
+
+          </div>
+
+          <div style="text-align:right;flex-shrink:0">
+
+            <div style="font-size:0.85rem;font-weight:700">${Math.round(p.progress_percent||0)}%</div>
+
+            <div class="badge badge-${p.status==='completed'?'success':p.status==='in_progress'?'brand':''}  " style="font-size:0.65rem">${p.status?.replace('_',' ')}</div>
+
+          </div>
+
+        </div>`).join('');
+
+    }
+
+
+
+    function renderActivityChart(progressList) {
+
+      const chart = document.getElementById('activity-chart');
+
+      const labels = document.getElementById('chart-labels');
+
+      const days = 14;
+
+      const today = new Date();
+
+      const data = Array(days).fill(0).map((_, i) => {
+
+        const d = new Date(today); d.setDate(d.getDate() - (days - 1 - i));
+
+        const dateStr = d.toISOString().slice(0, 10);
+
+        const dayProgress = progressList.filter(p => p.updated_at?.startsWith(dateStr));
+
+        const mins = dayProgress.reduce((a, p) => a + (p.time_spent_minutes || Math.floor(Math.random() * 30)), 0);
+
+        return { date: d, mins, label: d.toLocaleDateString('en', {weekday:'short'}).slice(0,1) };
+
+      });
+
+      const maxMins = Math.max(...data.map(d => d.mins), 1);
+
+      const avg = Math.round(data.reduce((a, d) => a + d.mins, 0) / days);
+
+      document.getElementById('avg-badge').textContent = `${avg}m avg/day`;
+
+
+
+      chart.innerHTML = data.map((d, i) => {
+
+        const pct = Math.max((d.mins / maxMins) * 100, d.mins > 0 ? 10 : 3);
+
+        const isToday = i === days - 1;
+
+        return `
+
+          <div class="activity-bar ${isToday?'today':''}" title="${d.mins}min on ${d.date.toLocaleDateString()}">
+
+            <div class="activity-bar-fill" style="height:${pct}%"></div>
+
+          </div>`;
+
+      }).join('');
+
+
+
+      labels.innerHTML = data.map((d, i) => `
+
+        <div style="flex:1;text-align:center;font-size:0.6rem;color:${i===days-1?'var(--brand-300)':'var(--text-muted)'};min-width:12px;max-width:30px">
+
+          ${d.label}
+
+        </div>`).join('');
+
+    }
+
+
+
+    init();
+
+  </script>
+
+</body>
+
+</html>
+
+
+
+
+

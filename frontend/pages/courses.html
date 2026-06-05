@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Courses — AI Master Python</title>
+
+  <link rel="stylesheet" href="/frontend/css/design-system.css">
+
+  <link rel="stylesheet" href="/frontend/css/layout.css">
+
+  <style>
+
+    .filter-bar {
+
+      display: flex;
+
+      align-items: center;
+
+      gap: var(--s-3);
+
+      flex-wrap: wrap;
+
+      margin-bottom: var(--s-6);
+
+    }
+
+    .filter-chip {
+
+      padding: 6px 16px;
+
+      border-radius: var(--r-full);
+
+      border: 1px solid var(--border);
+
+      background: var(--bg-card);
+
+      font-size: 0.82rem;
+
+      font-weight: 500;
+
+      color: var(--text-secondary);
+
+      cursor: pointer;
+
+      transition: all var(--t-fast);
+
+    }
+
+    .filter-chip:hover { border-color: var(--border-brand); color: var(--text-primary); }
+
+    .filter-chip.active {
+
+      background: rgba(99,102,241,0.15);
+
+      border-color: var(--brand-500);
+
+      color: var(--brand-300);
+
+    }
+
+    .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--s-5); }
+
+    .empty-state { text-align: center; padding: var(--s-16); color: var(--text-muted); }
+
+    .empty-state-icon { font-size: 3rem; margin-bottom: var(--s-4); }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="app-layout">
+
+    <div id="sidebar-placeholder"></div>
+
+
+
+    <div class="main-content">
+
+      <div class="topbar">
+
+        <div style="display:flex;align-items:center;gap:var(--s-4)">
+
+          <button class="hamburger" id="hamburger-btn"><span></span><span></span><span></span></button>
+
+          <div class="topbar-title">Courses</div>
+
+        </div>
+
+        <div class="topbar-actions">
+
+          <div class="search-bar">
+
+            <span style="color:var(--text-muted)">ðŸ”</span>
+
+            <input placeholder="Search courses…" id="course-search" oninput="filterCourses()">
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="page-content">
+
+        <div class="page-header">
+
+          <h1 class="page-title">Browse Courses</h1>
+
+          <p class="page-subtitle">Structured Python learning — from your first variable to advanced Python internals</p>
+
+        </div>
+
+
+
+        <!-- Filters -->
+
+        <div class="filter-bar" id="filter-bar">
+
+          <button class="filter-chip active" data-filter="all" onclick="setFilter('all', this)">All Levels</button>
+
+          <button class="filter-chip" data-filter="beginner" onclick="setFilter('beginner', this)">🌱 Beginner</button>
+
+          <button class="filter-chip" data-filter="intermediate" onclick="setFilter('intermediate', this)">⚡ Intermediate</button>
+
+          <button class="filter-chip" data-filter="advanced" onclick="setFilter('advanced', this)">🔥 Advanced</button>
+
+          <div style="margin-left:auto;display:flex;align-items:center;gap:var(--s-2)">
+
+            <span style="font-size:0.8rem;color:var(--text-muted)" id="course-count">Loading…</span>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- Course grid -->
+
+        <div class="course-grid stagger" id="course-grid">
+
+          <!-- Skeletons -->
+
+          ${Array(6).fill(`
+
+            <div class="course-card animate-in">
+
+              <div class="skeleton" style="height:160px;border-radius:0"></div>
+
+              <div class="course-card-body" style="gap:var(--s-3)">
+
+                <div class="skeleton" style="height:14px;width:60%"></div>
+
+                <div class="skeleton" style="height:18px;width:90%"></div>
+
+                <div class="skeleton" style="height:14px"></div>
+
+                <div class="skeleton" style="height:14px;width:75%"></div>
+
+              </div>
+
+            </div>`).join('')}
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="/frontend/js/config.js"></script>
+  <script src="/frontend/js/firebase.js"></script>
+  <script src="/frontend/js/api.js"></script>
+
+  <script src="/frontend/js/app.js"></script>
+
+  <script>
+
+    let allCourses = [];
+
+    let activeFilter = 'all';
+
+
+
+    const EMOJI = { beginner: '🌱', intermediate: '⚡', advanced: '🔥' };
+
+    const LEVEL_COLORS = { beginner: '#10b981', intermediate: '#6366f1', advanced: '#ef4444' };
+
+
+
+    async function init() {
+
+      const user = await Auth.requireAuth();
+
+      if (!user) return;
+
+      Sidebar.init('courses');
+
+      await loadCourses();
+
+    }
+
+
+
+    async function loadCourses() {
+
+      try {
+
+        const data = await API.CoursesApi.list({ page: 1, per_page: 50 });
+
+        allCourses = Array.isArray(data) ? data : (data?.items || []);
+
+        renderCourses(allCourses);
+
+      } catch (err) {
+
+        // Show demo data if API not available
+
+        allCourses = getDemoCourses();
+
+        renderCourses(allCourses);
+
+        Toast.info('Showing demo data — connect to the backend to see your courses');
+
+      }
+
+    }
+
+
+
+    function setFilter(filter, el) {
+
+      activeFilter = filter;
+
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+
+      el.classList.add('active');
+
+      filterCourses();
+
+    }
+
+
+
+    function filterCourses() {
+
+      const search = document.getElementById('course-search').value.toLowerCase();
+
+      let filtered = allCourses;
+
+      if (activeFilter !== 'all') filtered = filtered.filter(c => c.level === activeFilter);
+
+      if (search) filtered = filtered.filter(c =>
+
+        c.title?.toLowerCase().includes(search) ||
+
+        c.description?.toLowerCase().includes(search) ||
+
+        c.tags?.some(t => t.toLowerCase().includes(search))
+
+      );
+
+      renderCourses(filtered);
+
+    }
+
+
+
+    function renderCourses(courses) {
+
+      const grid = document.getElementById('course-grid');
+
+      document.getElementById('course-count').textContent = `${courses.length} course${courses.length !== 1 ? 's' : ''}`;
+
+
+
+      if (!courses.length) {
+
+        grid.innerHTML = `
+
+          <div class="empty-state" style="grid-column:1/-1">
+
+            <div class="empty-state-icon">ðŸ”</div>
+
+            <div style="font-size:1.1rem;font-weight:600;margin-bottom:var(--s-2)">No courses found</div>
+
+            <div>Try adjusting your search or filters</div>
+
+          </div>`;
+
+        return;
+
+      }
+
+
+
+      grid.innerHTML = courses.map(c => renderCourseCard(c)).join('');
+
+    }
+
+
+
+    function renderCourseCard(c) {
+
+      const emoji = EMOJI[c.level] || '📚';
+
+      const tags = (c.tags || []).slice(0, 3).map(t =>
+
+        `<span class="badge badge-brand" style="font-size:0.65rem">${t}</span>`
+
+      ).join('');
+
+      const premiumBadge = c.is_premium
+
+        ? `<span class="badge badge-purple">â­ Premium</span>`
+
+        : `<span class="badge badge-success">Free</span>`;
+
+
+
+      return `
+
+        <div class="course-card animate-in" onclick="openCourse('${c.id || c.slug}')">
+
+          <div class="course-card-thumb" style="background:linear-gradient(135deg,var(--bg-surface),${LEVEL_COLORS[c.level] || '#6366f1'}22)">
+
+            <span style="font-size:3.5rem">${emoji}</span>
+
+          </div>
+
+          <div class="course-card-body">
+
+            <div class="course-card-tags">
+
+              ${Utils.difficultyBadge(c.level)}
+
+              ${premiumBadge}
+
+            </div>
+
+            <div class="course-card-title">${c.title}</div>
+
+            <div class="course-card-desc">${c.description || 'A comprehensive Python course.'}</div>
+
+            ${tags ? `<div style="display:flex;gap:var(--s-1);flex-wrap:wrap">${tags}</div>` : ''}
+
+            <div class="course-card-footer">
+
+              <div style="display:flex;gap:var(--s-4)">
+
+                <span class="course-card-meta">📅 ${c.estimated_duration_days || '?'} days</span>
+
+                <span class="course-card-meta">📖 ${c.module_count || '?'} modules</span>
+
+              </div>
+
+              <button class="btn btn-primary btn-sm">Start →</button>
+
+            </div>
+
+          </div>
+
+        </div>`;
+
+    }
+
+
+
+    function openCourse(id) {
+
+      window.location.href = `lesson.html?course=${encodeURIComponent(id)}`;
+
+    }
+
+
+
+    function getDemoCourses() {
+
+      return [
+
+        { id:'1', slug:'python-foundations', title:'Python Foundations', description:'Start your Python journey with the essential building blocks: variables, data types, control flow, functions, and OOP.', level:'beginner', estimated_duration_days:30, is_premium:false, tags:['variables','loops','functions'], module_count:8 },
+
+        { id:'2', slug:'intermediate-python', title:'Intermediate Python', description:'Level up with decorators, generators, context managers, async/await, and advanced OOP patterns.', level:'intermediate', estimated_duration_days:30, is_premium:true, tags:['decorators','async','generators'], module_count:10 },
+
+        { id:'3', slug:'advanced-python', title:'Advanced Python', description:'Deep-dive into metaclasses, descriptors, C extensions, performance optimization, and Python internals.', level:'advanced', estimated_duration_days:30, is_premium:true, tags:['metaclasses','CPython','performance'], module_count:12 },
+
+        { id:'4', slug:'python-projects', title:'Python Projects', description:'Apply your skills by building real-world projects: CLI tools, web scrapers, APIs, and data pipelines.', level:'intermediate', estimated_duration_days:15, is_premium:true, tags:['projects','APIs','automation'], module_count:6 },
+
+        { id:'5', slug:'python-for-data', title:'Python for Data Science', description:'NumPy, Pandas, Matplotlib, and scikit-learn — the essential data science toolkit for Python developers.', level:'intermediate', estimated_duration_days:20, is_premium:true, tags:['numpy','pandas','data'], module_count:8 },
+
+        { id:'6', slug:'python-testing', title:'Testing in Python', description:'Write robust tests with pytest, mock, coverage, and learn CI/CD integration for Python projects.', level:'beginner', estimated_duration_days:10, is_premium:false, tags:['pytest','testing','CI'], module_count:4 },
+
+      ];
+
+    }
+
+
+
+    init();
+
+  </script>
+
+</body>
+
+</html>
+
+
+
+
+
