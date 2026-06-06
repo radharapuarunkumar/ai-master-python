@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live AI Tutor — AI Master Python</title>
+  <link rel="stylesheet" href="/frontend/css/design-system.css">
+  <link rel="stylesheet" href="/frontend/css/layout.css">
+  <style>
+    .chat-container {
+      display: flex; flex-direction: column; height: calc(100vh - 180px);
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-lg);
+    }
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: var(--s-5); display: flex; flex-direction: column; gap: var(--s-4);
+    }
+    .chat-msg {
+      max-width: 80%; padding: var(--s-3) var(--s-4); border-radius: var(--r-md); font-size: 0.95rem; line-height: 1.5;
+    }
+    .msg-user {
+      align-self: flex-end; background: var(--brand-600); color: white;
+    }
+    .msg-ai {
+      align-self: flex-start; background: var(--bg-surface); border: 1px solid var(--border);
+    }
+    .chat-input {
+      padding: var(--s-4); border-top: 1px solid var(--border); display: flex; gap: var(--s-3);
+    }
+    .chat-input input {
+      flex: 1; padding: var(--s-3); border: 1px solid var(--border); border-radius: var(--r-md);
+      background: var(--bg-surface); color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebar-placeholder"></div>
+
+    <div class="main-content">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:var(--s-4)">
+          <button class="hamburger" id="hamburger-btn" aria-label="Menu">
+            <span></span><span></span><span></span>
+          </button>
+          <div class="topbar-title">Live AI Tutor</div>
+        </div>
+      </div>
+
+      <div class="page-content">
+        <div class="chat-container">
+          <div class="chat-messages" id="chat-messages">
+            <div class="chat-msg msg-ai">Hi! I'm your AI Python Tutor. What would you like to learn today?</div>
+          </div>
+          <div class="chat-input">
+            <input type="text" id="chat-input-box" placeholder="Ask a question about Python..." onkeypress="if(event.key==='Enter') sendMessage()">
+            <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="/frontend/js/config.js"></script>
+  <script src="/frontend/js/firebase.js"></script>
+  <script src="/frontend/js/api.js"></script>
+  <script src="/frontend/js/app.js"></script>
+  <script>
+    let sessionId = null;
+
+    async function init() {
+      await Auth.requireAuth();
+      Sidebar.init('tutor');
+      
+      try {
+        const session = await API.ChatApi.createSession({ title: "Python Help" });
+        sessionId = session.id;
+      } catch (err) {
+        console.error("Failed to start chat session", err);
+      }
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('chat-input-box');
+      const text = input.value.trim();
+      if (!text || !sessionId) return;
+      
+      appendMessage('user', text);
+      input.value = '';
+
+      try {
+        const response = await API.ChatApi.sendMessage(sessionId, text);
+        appendMessage('ai', response.content);
+      } catch (err) {
+        appendMessage('ai', "Sorry, I'm having trouble connecting right now.");
+      }
+    }
+
+    function appendMessage(role, text) {
+      const container = document.getElementById('chat-messages');
+      const msg = document.createElement('div');
+      msg.className = `chat-msg msg-${role}`;
+      msg.textContent = text;
+      container.appendChild(msg);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    init();
+  </script>
+</body>
+</html>

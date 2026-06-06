@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects — AI Master Python</title>
+  <link rel="stylesheet" href="/frontend/css/design-system.css">
+  <link rel="stylesheet" href="/frontend/css/layout.css">
+  <style>
+    .project-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: var(--s-5);
+      transition: transform var(--t-fast), border-color var(--t-fast);
+      cursor: pointer;
+    }
+    .project-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-brand);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebar-placeholder"></div>
+
+    <div class="main-content">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:var(--s-4)">
+          <button class="hamburger" id="hamburger-btn" aria-label="Menu">
+            <span></span><span></span><span></span>
+          </button>
+          <div class="topbar-title">Python Projects</div>
+        </div>
+      </div>
+
+      <div class="page-content">
+        <div style="margin-bottom:var(--s-6)">
+          <h1 style="margin-bottom:var(--s-2)">Build Real-World Projects</h1>
+          <p style="color:var(--text-secondary)">Apply your Python skills to practical scenarios.</p>
+        </div>
+        <div class="grid-3" id="projects-grid">
+          <div class="skeleton" style="height:150px;border-radius:var(--r-xl)"></div>
+          <div class="skeleton" style="height:150px;border-radius:var(--r-xl)"></div>
+          <div class="skeleton" style="height:150px;border-radius:var(--r-xl)"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="/frontend/js/config.js"></script>
+  <script src="/frontend/js/firebase.js"></script>
+  <script src="/frontend/js/api.js"></script>
+  <script src="/frontend/js/app.js"></script>
+  <script>
+    async function init() {
+      await Auth.requireAuth();
+      Sidebar.init('projects');
+
+      try {
+        const projects = await API.ProjectsApi.list();
+        renderProjects(projects);
+      } catch (err) {
+        document.getElementById('projects-grid').innerHTML = '<p>Error loading projects.</p>';
+      }
+    }
+
+    function renderProjects(list) {
+      const grid = document.getElementById('projects-grid');
+      if (!list.length) {
+        grid.innerHTML = '<p>No projects available right now.</p>';
+        return;
+      }
+
+      grid.innerHTML = list.map(p => `
+        <div class="project-card">
+          <div class="badge badge-${p.difficulty === 'beginner' ? 'success' : p.difficulty === 'intermediate' ? 'brand' : 'error'}" style="margin-bottom:var(--s-3)">
+            ${p.difficulty}
+          </div>
+          <h3 style="margin-bottom:var(--s-2)">${p.title}</h3>
+          <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:var(--s-4)">${p.description || 'A great Python project.'}</p>
+          <button class="btn btn-primary btn-sm">Start Project</button>
+        </div>
+      `).join('');
+    }
+
+    init();
+  </script>
+</body>
+</html>

@@ -135,5 +135,41 @@ const ProgressApi = {
   streak: () => requestWithRefresh('/progress/streak'),
 };
 
+/* ── Project endpoints ───────────────────────────────────── */
+const ProjectsApi = {
+  list: () => requestWithRefresh('/projects'),
+  get: (id) => requestWithRefresh(`/projects/${id}`),
+};
+
+/* ── Chat endpoints (AI Tutor) ───────────────────────────── */
+const ChatApi = {
+  createSession: (data) => requestWithRefresh('/tutor', { method: 'POST', body: data }),
+  getSession: (id) => requestWithRefresh(`/tutor/${id}`),
+  sendMessage: (id, content) => requestWithRefresh(`/tutor/${id}/message`, { method: 'POST', body: { content } }),
+};
+
+/* ── Interview endpoints ─────────────────────────────────── */
+const InterviewApi = {
+  create: (data) => requestWithRefresh('/interviews', { method: 'POST', body: data }),
+  get: (id) => requestWithRefresh(`/interviews/${id}`),
+  submitAnswer: (qId, answer) => requestWithRefresh(`/interviews/questions/${qId}/answer`, { method: 'POST', body: { answer } }),
+};
+
+/* ── Resume endpoints ────────────────────────────────────── */
+const ResumeApi = {
+  list: () => requestWithRefresh('/resumes'),
+  create: (data) => requestWithRefresh('/resumes', { method: 'POST', body: data }),
+};
+
+/* ── Certificate endpoints ───────────────────────────────── */
+const CertificatesApi = {
+  list: () => requestWithRefresh('/certificates'),
+  generate: (courseId) => requestWithRefresh(`/certificates/${courseId}`, { method: 'POST' }),
+};
+
 /* ── Expose globally ─────────────────────────────────────── */
-window.API = { AuthApi, UsersApi, CoursesApi, ProgressApi, ApiError };
+window.API = { 
+  AuthApi, UsersApi, CoursesApi, ProgressApi, 
+  ProjectsApi, ChatApi, InterviewApi, ResumeApi, CertificatesApi,
+  ApiError 
+};

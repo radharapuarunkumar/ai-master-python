@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certificates — AI Master Python</title>
+  <link rel="stylesheet" href="/frontend/css/design-system.css">
+  <link rel="stylesheet" href="/frontend/css/layout.css">
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebar-placeholder"></div>
+
+    <div class="main-content">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:var(--s-4)">
+          <button class="hamburger" id="hamburger-btn" aria-label="Menu">
+            <span></span><span></span><span></span>
+          </button>
+          <div class="topbar-title">Certificates</div>
+        </div>
+      </div>
+
+      <div class="page-content">
+        <div style="margin-bottom:var(--s-6)">
+          <h1 style="margin-bottom:var(--s-2)">My Certificates</h1>
+          <p style="color:var(--text-secondary)">View and download certificates for completed courses.</p>
+        </div>
+        
+        <div class="grid-3" id="certs-grid">
+          <div class="skeleton" style="height:180px;border-radius:var(--r-xl)"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="/frontend/js/config.js"></script>
+  <script src="/frontend/js/firebase.js"></script>
+  <script src="/frontend/js/api.js"></script>
+  <script src="/frontend/js/app.js"></script>
+  <script>
+    async function init() {
+      await Auth.requireAuth();
+      Sidebar.init('certificates');
+
+      try {
+        const certs = await API.CertificatesApi.list();
+        renderCerts(certs);
+      } catch (err) {
+        document.getElementById('certs-grid').innerHTML = '<p>Error loading certificates.</p>';
+      }
+    }
+
+    function renderCerts(list) {
+      const grid = document.getElementById('certs-grid');
+      if (!list.length) {
+        grid.innerHTML = `
+          <div class="card" style="grid-column:1/-1;text-align:center;padding:var(--s-8)">
+            <p style="color:var(--text-muted)">Complete a course to earn your first certificate!</p>
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = list.map(c => `
+        <div class="card" style="text-align:center">
+          <div style="font-size:3rem;margin-bottom:var(--s-3)">🎓</div>
+          <h4 style="margin-bottom:var(--s-2)">Python Course Completed</h4>
+          <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:var(--s-4)">
+            Issued: ${new Date(c.issued_at).toLocaleDateString()}<br>
+            ID: ${c.certificate_number}
+          </p>
+          <button class="btn btn-secondary btn-sm" style="width:100%" onclick="alert('Downloading Certificate...')">Download PDF</button>
+        </div>
+      `).join('');
+    }
+
+    init();
+  </script>
+</body>
+</html>

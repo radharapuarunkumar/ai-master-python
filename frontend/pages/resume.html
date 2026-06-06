@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume Builder — AI Master Python</title>
+  <link rel="stylesheet" href="/frontend/css/design-system.css">
+  <link rel="stylesheet" href="/frontend/css/layout.css">
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebar-placeholder"></div>
+
+    <div class="main-content">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:var(--s-4)">
+          <button class="hamburger" id="hamburger-btn" aria-label="Menu">
+            <span></span><span></span><span></span>
+          </button>
+          <div class="topbar-title">Resume Builder</div>
+        </div>
+      </div>
+
+      <div class="page-content">
+        <div style="margin-bottom:var(--s-6);display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <h1 style="margin-bottom:var(--s-2)">My Resumes</h1>
+            <p style="color:var(--text-secondary)">Manage and export your tailored Python developer resumes.</p>
+          </div>
+          <button class="btn btn-primary" onclick="alert('Creating resumes requires Premium!')">Create New Resume</button>
+        </div>
+        
+        <div class="grid-2" id="resumes-grid">
+          <div class="skeleton" style="height:200px;border-radius:var(--r-xl)"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="/frontend/js/config.js"></script>
+  <script src="/frontend/js/firebase.js"></script>
+  <script src="/frontend/js/api.js"></script>
+  <script src="/frontend/js/app.js"></script>
+  <script>
+    async function init() {
+      await Auth.requireAuth();
+      Sidebar.init('resume');
+
+      try {
+        const resumes = await API.ResumeApi.list();
+        renderResumes(resumes);
+      } catch (err) {
+        document.getElementById('resumes-grid').innerHTML = '<p>Error loading resumes.</p>';
+      }
+    }
+
+    function renderResumes(list) {
+      const grid = document.getElementById('resumes-grid');
+      if (!list.length) {
+        grid.innerHTML = `
+          <div class="card" style="grid-column:1/-1;text-align:center;padding:var(--s-8)">
+            <p style="color:var(--text-muted)">You haven't created any resumes yet.</p>
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = list.map(r => `
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:var(--s-4)">
+            <div>
+              <h3>${r.title}</h3>
+              <div style="font-size:0.85rem;color:var(--text-secondary)">Target: ${r.target_job_title || 'General'}</div>
+            </div>
+            <div class="badge badge-success">ATS Score: ${r.ats_score || 'N/A'}</div>
+          </div>
+          
+          <div style="display:flex;gap:var(--s-3);margin-top:var(--s-6)">
+            <button class="btn btn-secondary btn-sm" style="flex:1">Edit</button>
+            <button class="btn btn-primary btn-sm" style="flex:1" onclick="alert('Exporting PDF...')">Export PDF</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    init();
+  </script>
+</body>
+</html>

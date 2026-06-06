@@ -28,10 +28,9 @@ from app.models.base import Base
 # model locations once they are created.
 # ---------------------------------------------------------------------------
 try:
-    from app.models.user import User
-    from app.models.course import Course
-    from app.models.module import Module
-    from app.models.lesson import Lesson
+    from app.models.project import Project
+    from app.models.resume import Resume
+    from app.models.certificate import Certificate
 except ImportError:
     print(
         "WARNING: Some model modules could not be imported.\n"
@@ -51,6 +50,13 @@ ADMIN_USER = {
     "is_active": True,
 }
 
+ARUN_USER = {
+    "email": "arun@aimaster.dev",
+    "full_name": "Arun Kumar",
+    "role": "free",
+    "is_active": True,
+}
+
 COURSES = [
     {
         "title": "Python Basics",
@@ -66,74 +72,17 @@ COURSES = [
                     {"title": "Variables and Data Types", "order": 3, "content": "Understanding variables, strings, numbers, and booleans."},
                 ],
             },
-            {
-                "title": "Control Flow",
-                "order": 2,
-                "lessons": [
-                    {"title": "If Statements", "order": 1, "content": "Making decisions with if, elif, and else."},
-                    {"title": "Loops", "order": 2, "content": "Repeating code with for and while loops."},
-                ],
-            },
-        ],
-    },
-    {
-        "title": "Intermediate Python",
-        "description": "Level up with functions, OOP, and file handling.",
-        "difficulty": "intermediate",
-        "modules": [
-            {
-                "title": "Functions & Modules",
-                "order": 1,
-                "lessons": [
-                    {"title": "Defining Functions", "order": 1, "content": "Creating reusable code with def."},
-                    {"title": "Modules and Imports", "order": 2, "content": "Organizing code across files."},
-                ],
-            },
-            {
-                "title": "Object-Oriented Programming",
-                "order": 2,
-                "lessons": [
-                    {"title": "Classes and Objects", "order": 1, "content": "Introduction to OOP concepts."},
-                    {"title": "Inheritance", "order": 2, "content": "Reusing and extending classes."},
-                    {"title": "Magic Methods", "order": 3, "content": "Customizing class behavior with dunder methods."},
-                ],
-            },
-            {
-                "title": "File I/O & Error Handling",
-                "order": 3,
-                "lessons": [
-                    {"title": "Reading and Writing Files", "order": 1, "content": "Working with text and binary files."},
-                    {"title": "Exception Handling", "order": 2, "content": "Gracefully handling errors with try/except."},
-                ],
-            },
-        ],
-    },
-    {
-        "title": "Advanced Python",
-        "description": "Master async programming, metaprogramming, and performance.",
-        "difficulty": "advanced",
-        "modules": [
-            {
-                "title": "Async Programming",
-                "order": 1,
-                "lessons": [
-                    {"title": "Coroutines and async/await", "order": 1, "content": "Understanding the async execution model."},
-                    {"title": "asyncio in Practice", "order": 2, "content": "Building concurrent applications with asyncio."},
-                ],
-            },
-            {
-                "title": "Metaprogramming",
-                "order": 2,
-                "lessons": [
-                    {"title": "Decorators Deep Dive", "order": 1, "content": "Advanced decorator patterns and use cases."},
-                    {"title": "Metaclasses", "order": 2, "content": "Controlling class creation with metaclasses."},
-                    {"title": "Descriptors", "order": 3, "content": "Understanding the descriptor protocol."},
-                ],
-            },
         ],
     },
 ]
 
+PROJECTS = [
+    {"title": "Terminal To-Do List", "description": "Build a CLI to-do app using Python.", "difficulty": "beginner"},
+    {"title": "Weather API Fetcher", "description": "Use requests to fetch weather data.", "difficulty": "beginner"},
+    {"title": "Web Scraper", "description": "Scrape a website using BeautifulSoup.", "difficulty": "intermediate"},
+    {"title": "Flask API", "description": "Build a basic REST API with Flask.", "difficulty": "intermediate"},
+    {"title": "Discord Bot", "description": "Create a Discord bot with discord.py.", "difficulty": "advanced"},
+]
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -154,53 +103,52 @@ async def seed() -> None:
 
     async with async_session() as session:
         async with session.begin():
-            # --- Admin user ---
+            # --- Users ---
             if not await record_exists(session, User, email=ADMIN_USER["email"]):
-                admin = User(id=str(uuid4()), **ADMIN_USER)
+                admin = User(id=uuid4(), **ADMIN_USER)
                 session.add(admin)
                 print(f"✓ Created admin user: {ADMIN_USER['email']}")
+            
+            arun_id = uuid4()
+            if not await record_exists(session, User, email=ARUN_USER["email"]):
+                arun = User(id=arun_id, **ARUN_USER)
+                session.add(arun)
+                print(f"✓ Created user: {ARUN_USER['email']}")
             else:
-                print(f"· Admin user already exists: {ADMIN_USER['email']}")
+                stmt = select(User).where(User.email == ARUN_USER['email'])
+                res = await session.execute(stmt)
+                arun_id = res.scalar_one().id
 
-            # --- Courses, modules, lessons ---
-            for course_data in COURSES:
-                if await record_exists(session, Course, title=course_data["title"]):
-                    print(f"· Course already exists: {course_data['title']}")
-                    continue
+            # --- Projects ---
+            for proj in PROJECTS:
+                if not await record_exists(session, Project, title=proj["title"]):
+                    p = Project(id=uuid4(), title=proj["title"], description=proj["description"], difficulty=proj["difficulty"])
+                    session.add(p)
+            print("✓ Seeded projects")
 
-                course = Course(
-                    id=str(uuid4()),
-                    title=course_data["title"],
-                    description=course_data["description"],
-                    difficulty=course_data["difficulty"],
-                    is_published=True,
+            # --- Resume ---
+            if not await record_exists(session, Resume, user_id=arun_id):
+                resume = Resume(
+                    id=uuid4(),
+                    user_id=arun_id,
+                    title="Python Backend Developer",
+                    target_job_title="Software Engineer",
+                    content={"experience": "1 year Python"}
                 )
-                session.add(course)
-                # Flush to get the course ID before creating children
-                await session.flush()
+                session.add(resume)
+            print("✓ Seeded resume")
 
-                for mod_data in course_data["modules"]:
-                    module = Module(
-                        id=str(uuid4()),
-                        course_id=course.id,
-                        title=mod_data["title"],
-                        order=mod_data["order"],
-                    )
-                    session.add(module)
-                    await session.flush()
-
-                    for lesson_data in mod_data["lessons"]:
-                        lesson = Lesson(
-                            id=str(uuid4()),
-                            module_id=module.id,
-                            title=lesson_data["title"],
-                            content=lesson_data["content"],
-                            order=lesson_data["order"],
-                        )
-                        session.add(lesson)
-
-                print(f"✓ Created course: {course_data['title']} "
-                      f"({len(course_data['modules'])} modules)")
+            # --- Certificate ---
+            if not await record_exists(session, Certificate, user_id=arun_id):
+                cert = Certificate(
+                    id=uuid4(),
+                    user_id=arun_id,
+                    course_id=uuid4(), # dummy course id
+                    certificate_number="CERT-ARUN-123",
+                    verification_hash="hash123"
+                )
+                session.add(cert)
+            print("✓ Seeded certificate")
 
     await engine.dispose()
     print("\n✅ Seeding complete!")
