@@ -645,9 +645,12 @@
         </div>
 
         <div class="lesson-content">
-
-          ${lesson.content_html || renderDemoContent(lesson)}
-
+          ${lesson.video_url ? `
+            <div class="card" style="margin-bottom:var(--s-5); background:#000; padding:0; overflow:hidden;">
+              <video src="${lesson.video_url}" controls style="width:100%; aspect-ratio:16/9;"></video>
+            </div>
+          ` : ''}
+          ${lesson.content_html ? lesson.content_html : renderDemoContent(lesson)}
         </div>`;
 
 

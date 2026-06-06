@@ -52,8 +52,9 @@ class SessionStatusEnum(str, Enum):
 
 class InterviewTypeEnum(str, Enum):
     technical = "technical"
-    behavioral = "behavioral"
+    hr = "hr"
     system_design = "system_design"
+    placement = "placement"
 
 
 class DifficultyEnum(str, Enum):

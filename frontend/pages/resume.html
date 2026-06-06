@@ -6,6 +6,7 @@
   <title>Resume Builder — AI Master Python</title>
   <link rel="stylesheet" href="/frontend/css/design-system.css">
   <link rel="stylesheet" href="/frontend/css/layout.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
   <div class="app-layout">
@@ -17,21 +18,57 @@
           <button class="hamburger" id="hamburger-btn" aria-label="Menu">
             <span></span><span></span><span></span>
           </button>
-          <div class="topbar-title">Resume Builder</div>
+          <div class="topbar-title">ATS Resume Builder</div>
         </div>
       </div>
 
       <div class="page-content">
-        <div style="margin-bottom:var(--s-6);display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <h1 style="margin-bottom:var(--s-2)">My Resumes</h1>
-            <p style="color:var(--text-secondary)">Manage and export your tailored Python developer resumes.</p>
+        <div class="grid-2">
+          <!-- Editor -->
+          <div class="card animate-in">
+            <h2 style="margin-bottom:var(--s-4)">Build Your Resume</h2>
+            <form id="resume-form" style="display:flex;flex-direction:column;gap:var(--s-4)">
+              <div>
+                <label>Full Name</label>
+                <input type="text" id="name" style="width:100%;padding:var(--s-2);background:var(--bg-surface);color:#fff;border:1px solid var(--border);border-radius:var(--r-md)">
+              </div>
+              <div>
+                <label>Email</label>
+                <input type="email" id="email" style="width:100%;padding:var(--s-2);background:var(--bg-surface);color:#fff;border:1px solid var(--border);border-radius:var(--r-md)">
+              </div>
+              <div>
+                <label>Skills</label>
+                <textarea id="skills" rows="3" style="width:100%;padding:var(--s-2);background:var(--bg-surface);color:#fff;border:1px solid var(--border);border-radius:var(--r-md)" placeholder="Python, Django, FastAPI..."></textarea>
+              </div>
+              <div>
+                <label>Projects</label>
+                <textarea id="projects" rows="4" style="width:100%;padding:var(--s-2);background:var(--bg-surface);color:#fff;border:1px solid var(--border);border-radius:var(--r-md)" placeholder="Built AI Master Python..."></textarea>
+              </div>
+              <div>
+                <label>Education</label>
+                <textarea id="education" rows="2" style="width:100%;padding:var(--s-2);background:var(--bg-surface);color:#fff;border:1px solid var(--border);border-radius:var(--r-md)" placeholder="BSc Computer Science..."></textarea>
+              </div>
+              <button type="button" class="btn btn-primary" onclick="updatePreview()">Generate Preview</button>
+              <button type="button" class="btn btn-secondary" onclick="exportPDF()">Export to PDF</button>
+            </form>
           </div>
-          <button class="btn btn-primary" onclick="alert('Creating resumes requires Premium!')">Create New Resume</button>
-        </div>
-        
-        <div class="grid-2" id="resumes-grid">
-          <div class="skeleton" style="height:200px;border-radius:var(--r-xl)"></div>
+
+          <!-- Preview -->
+          <div class="card animate-in" style="background:#fff;color:#000" id="resume-preview">
+            <div style="text-align:center;margin-bottom:20px;border-bottom:2px solid #ccc;padding-bottom:10px">
+              <h1 id="p-name" style="margin:0;color:#333;font-size:2rem">[Your Name]</h1>
+              <p id="p-email" style="margin:5px 0 0;color:#555">[Your Email]</p>
+            </div>
+            
+            <h3 style="color:#222;border-bottom:1px solid #ddd;padding-bottom:5px;margin-top:20px">Skills</h3>
+            <p id="p-skills" style="white-space:pre-wrap;font-size:0.95rem">[Your Skills]</p>
+            
+            <h3 style="color:#222;border-bottom:1px solid #ddd;padding-bottom:5px;margin-top:20px">Projects</h3>
+            <p id="p-projects" style="white-space:pre-wrap;font-size:0.95rem">[Your Projects]</p>
+            
+            <h3 style="color:#222;border-bottom:1px solid #ddd;padding-bottom:5px;margin-top:20px">Education</h3>
+            <p id="p-education" style="white-space:pre-wrap;font-size:0.95rem">[Your Education]</p>
+          </div>
         </div>
       </div>
     </div>
@@ -47,41 +84,34 @@
     async function init() {
       await Auth.requireAuth();
       Sidebar.init('resume');
-
-      try {
-        const resumes = await API.ResumeApi.list();
-        renderResumes(resumes);
-      } catch (err) {
-        document.getElementById('resumes-grid').innerHTML = '<p>Error loading resumes.</p>';
+      
+      const user = Auth.currentUser;
+      if (user) {
+        document.getElementById('name').value = user.displayName || 'Python Developer';
+        document.getElementById('email').value = user.email || 'developer@example.com';
+        updatePreview();
       }
     }
 
-    function renderResumes(list) {
-      const grid = document.getElementById('resumes-grid');
-      if (!list.length) {
-        grid.innerHTML = `
-          <div class="card" style="grid-column:1/-1;text-align:center;padding:var(--s-8)">
-            <p style="color:var(--text-muted)">You haven't created any resumes yet.</p>
-          </div>`;
-        return;
-      }
+    function updatePreview() {
+      document.getElementById('p-name').textContent = document.getElementById('name').value || '[Your Name]';
+      document.getElementById('p-email').textContent = document.getElementById('email').value || '[Your Email]';
+      document.getElementById('p-skills').textContent = document.getElementById('skills').value || 'Python, Git, Web Development';
+      document.getElementById('p-projects').textContent = document.getElementById('projects').value || 'AI Master Python Project';
+      document.getElementById('p-education').textContent = document.getElementById('education').value || 'Computer Science Degree';
+    }
 
-      grid.innerHTML = list.map(r => `
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:var(--s-4)">
-            <div>
-              <h3>${r.title}</h3>
-              <div style="font-size:0.85rem;color:var(--text-secondary)">Target: ${r.target_job_title || 'General'}</div>
-            </div>
-            <div class="badge badge-success">ATS Score: ${r.ats_score || 'N/A'}</div>
-          </div>
-          
-          <div style="display:flex;gap:var(--s-3);margin-top:var(--s-6)">
-            <button class="btn btn-secondary btn-sm" style="flex:1">Edit</button>
-            <button class="btn btn-primary btn-sm" style="flex:1" onclick="alert('Exporting PDF...')">Export PDF</button>
-          </div>
-        </div>
-      `).join('');
+    function exportPDF() {
+      updatePreview();
+      const element = document.getElementById('resume-preview');
+      const opt = {
+        margin: 10,
+        filename: 'My_Python_Resume.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save();
     }
 
     init();

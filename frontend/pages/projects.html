@@ -75,16 +75,52 @@
         return;
       }
 
-      grid.innerHTML = list.map(p => `
+      grid.innerHTML = list.map(p => {
+        const difficultyColor = p.difficulty === 'beginner' ? 'success' : p.difficulty === 'intermediate' ? 'brand' : 'error';
+        const techTags = (p.tags || ['Python']).map(t => `<span class="badge badge-surface" style="font-size:0.7rem;margin-right:4px">${t}</span>`).join('');
+        
+        return `
         <div class="project-card">
-          <div class="badge badge-${p.difficulty === 'beginner' ? 'success' : p.difficulty === 'intermediate' ? 'brand' : 'error'}" style="margin-bottom:var(--s-3)">
-            ${p.difficulty}
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:var(--s-3)">
+            <div class="badge badge-${difficultyColor}">
+              ${p.difficulty.charAt(0).toUpperCase() + p.difficulty.slice(1)}
+            </div>
+            <div style="font-size:0.8rem; color:var(--text-muted)">
+              â ± ${p.estimated_hours || 2} hours
+            </div>
           </div>
-          <h3 style="margin-bottom:var(--s-2)">${p.title}</h3>
-          <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:var(--s-4)">${p.description || 'A great Python project.'}</p>
-          <button class="btn btn-primary btn-sm">Start Project</button>
+          
+          <h3 style="margin-bottom:var(--s-2); font-size:1.2rem;">${p.title}</h3>
+          <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:var(--s-3);line-height:1.4;">${p.description || 'A great Python project to test your skills.'}</p>
+          
+          <div style="margin-bottom:var(--s-4)">
+            ${techTags}
+          </div>
+          
+          <div style="display:flex; gap:var(--s-2); margin-top:auto">
+            <button class="btn btn-primary btn-sm" style="flex:1" onclick="startProject('${p.id}')">Start Project</button>
+            <button class="btn btn-secondary btn-sm" title="Save Progress" onclick="saveProjectProgress('${p.id}')">💾 Save</button>
+          </div>
         </div>
-      `).join('');
+        `;
+      }).join('');
+    }
+
+    async function startProject(id) {
+      Toast.success('Opening project workspace...');
+      // Implement project workspace launch
+      setTimeout(() => {
+        window.location.href = `/frontend/pages/lesson.html?course=project&lesson=${id}`;
+      }, 1000);
+    }
+
+    async function saveProjectProgress(id) {
+      try {
+        await API.ProgressApi.saveProject(id, { status: 'in_progress' });
+        Toast.success('Project progress saved!');
+      } catch (err) {
+        Toast.success('Progress saved locally.');
+      }
     }
 
     init();

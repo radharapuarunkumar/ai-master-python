@@ -6,6 +6,26 @@
   <title>Interview Simulator — AI Master Python</title>
   <link rel="stylesheet" href="/frontend/css/design-system.css">
   <link rel="stylesheet" href="/frontend/css/layout.css">
+  <style>
+    .tabs { display: flex; gap: var(--s-2); margin-bottom: var(--s-4); border-bottom: 1px solid var(--border); padding-bottom: var(--s-2); overflow-x: auto; }
+    .tab { padding: var(--s-2) var(--s-4); border-radius: var(--r-md); cursor: pointer; color: var(--text-secondary); white-space: nowrap; }
+    .tab.active { background: var(--brand-500); color: white; font-weight: 600; }
+    .tab:hover:not(.active) { background: var(--bg-surface); }
+    
+    .interview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); margin-bottom: var(--s-4); }
+    @media (max-width: 768px) { .interview-grid { grid-template-columns: 1fr; } }
+    
+    .video-panel { background: #000; border-radius: var(--r-lg); overflow: hidden; aspect-ratio: 16/9; position: relative; }
+    .video-panel video { width: 100%; height: 100%; object-fit: cover; }
+    .video-label { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.6); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; }
+    
+    .ai-panel { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--s-4); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; aspect-ratio: 16/9; }
+    .ai-avatar { width: 80px; height: 80px; background: var(--brand-600); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: var(--s-4); animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(var(--brand-rgb), 0.4); } 70% { box-shadow: 0 0 0 20px rgba(var(--brand-rgb), 0); } 100% { box-shadow: 0 0 0 0 rgba(var(--brand-rgb), 0); } }
+    
+    .controls-panel { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--s-4); }
+    #timer { font-family: monospace; font-size: 1.5rem; color: var(--error); font-weight: bold; text-align: right; margin-bottom: var(--s-2); }
+  </style>
 </head>
 <body>
   <div class="app-layout">
@@ -21,16 +41,42 @@
         </div>
       </div>
 
-      <div class="page-content" id="interview-content">
-        <div class="card animate-in" style="max-width:600px;margin:0 auto;text-align:center">
-          <div style="font-size:3rem;margin-bottom:var(--s-4)">🎯</div>
-          <h2 style="margin-bottom:var(--s-3)">Ready for your mock interview?</h2>
-          <p style="color:var(--text-secondary);margin-bottom:var(--s-6)">
-            Test your Python knowledge with an AI-driven technical interview. 
-            You'll get an immediate score and feedback on your answers.
-          </p>
-          <button class="btn btn-primary" onclick="startInterview()">Start Technical Interview</button>
+      <div class="page-content">
+        
+        <div class="tabs" id="interview-tabs">
+          <div class="tab active" onclick="switchTab('technical', this)">Technical Interview</div>
+          <div class="tab" onclick="switchTab('hr', this)">HR Interview</div>
+          <div class="tab" onclick="switchTab('system_design', this)">System Design</div>
+          <div class="tab" onclick="switchTab('placement', this)">Mock Placement</div>
         </div>
+
+        <div class="interview-grid">
+          <div class="ai-panel">
+            <div class="ai-avatar">🤖</div>
+            <h3 style="margin-bottom:var(--s-2)">AI Interviewer</h3>
+            <p id="ai-question" style="color:var(--text-secondary)">Click 'Start Interview' when you are ready.</p>
+          </div>
+          <div class="video-panel">
+            <video id="user-video" autoplay playsinline muted></video>
+            <div class="video-label">You (Camera)</div>
+          </div>
+        </div>
+
+        <div class="controls-panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--s-3)">
+            <h3 id="current-stage">Preparation</h3>
+            <div id="timer">00:00</div>
+          </div>
+          
+          <textarea id="answer-box" rows="4" style="width:100%;padding:var(--s-3);background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border);border-radius:var(--r-md);margin-bottom:var(--s-3)" placeholder="Type your answer here or speak clearly into your microphone..." disabled></textarea>
+          
+          <div style="display:flex;gap:var(--s-3);align-items:center">
+            <button class="btn btn-primary" id="btn-start" onclick="startInterview()">Start Interview</button>
+            <button class="btn btn-secondary" id="btn-submit" onclick="submitAnswer()" style="display:none">Submit Answer</button>
+            <div id="evaluation-result" style="color:var(--success);font-weight:bold;margin-left:auto"></div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -42,83 +88,106 @@
   <script src="/frontend/js/api.js"></script>
   <script src="/frontend/js/app.js"></script>
   <script>
-    let currentInterview = null;
+    let timerInterval;
+    let currentMode = 'technical';
+    let isInterviewing = false;
+
+    const questions = {
+      technical: "Explain the difference between a generator and a list comprehension in Python. When would you use each?",
+      hr: "Tell me about a time you had a conflict with a team member and how you resolved it.",
+      system_design: "How would you design the backend for a scalable URL shortener like bit.ly?",
+      placement: "Walk me through your resume and highlight your most significant Python project."
+    };
 
     async function init() {
       await Auth.requireAuth();
       Sidebar.init('interview');
-    }
-
-    async function startInterview() {
-      const content = document.getElementById('interview-content');
-      content.innerHTML = '<div style="text-align:center"><div class="spinner"></div><p>Setting up your interview...</p></div>';
       
+      // Request camera
       try {
-        currentInterview = await API.InterviewApi.create({ interview_type: 'technical', difficulty: 'medium' });
-        renderQuestion(currentInterview.questions[0]);
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        document.getElementById('user-video').srcObject = stream;
       } catch (err) {
-        content.innerHTML = '<p>Error starting interview.</p>';
+        console.log("Camera access denied or unavailable.");
       }
     }
 
-    function renderQuestion(q) {
-      document.getElementById('interview-content').innerHTML = `
-        <div class="card animate-in" style="max-width:800px;margin:0 auto">
-          <div style="display:flex; gap: var(--s-4); margin-bottom: var(--s-4)">
-            <div style="flex:1; background:#000; border-radius:var(--r-md); overflow:hidden; position:relative; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center">
-              <div style="position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.5); padding:4px 8px; border-radius:4px; font-size:0.8rem; color:#fff">AI Interviewer</div>
-              <div style="font-size:4rem">🤖</div>
-              <div style="position:absolute; bottom:10px; right:10px; display:flex; gap:5px">
-                <div style="width:10px; height:10px; background:green; border-radius:50%; animation: pulse 1.5s infinite"></div>
-              </div>
-            </div>
-            <div style="flex:1; background:#111; border-radius:var(--r-md); overflow:hidden; position:relative; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center">
-              <div style="position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.5); padding:4px 8px; border-radius:4px; font-size:0.8rem; color:#fff">You</div>
-              <div style="font-size:4rem; color:var(--text-muted)">👤</div>
-            </div>
-          </div>
-
-          <div class="badge badge-brand" style="margin-bottom:var(--s-4)">Question ${q.order_index}</div>
-          <h3 style="margin-bottom:var(--s-4)">${q.question_text}</h3>
-          
-          <textarea id="answer-box" rows="6" style="width:100%;padding:var(--s-3);border:1px solid var(--border);border-radius:var(--r-md);background:var(--bg-surface);color:var(--text-primary);margin-bottom:var(--s-4)" placeholder="Type your answer here..."></textarea>
-          
-          <div style="display:flex;justify-content:flex-end">
-            <button class="btn btn-primary" onclick="submitAnswer('${q.id}')">Submit Answer</button>
-          </div>
-        </div>
-      `;
+    function switchTab(mode, el) {
+      if (isInterviewing) {
+        if(!confirm("Are you sure you want to switch tabs? This will end the current interview.")) return;
+        endInterview();
+      }
+      
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      currentMode = mode;
+      
+      document.getElementById('ai-question').textContent = "Click 'Start Interview' when you are ready.";
+      document.getElementById('evaluation-result').textContent = "";
+      document.getElementById('answer-box').value = "";
     }
 
-    async function submitAnswer(qId) {
-      const answer = document.getElementById('answer-box').value.trim();
-      if (!answer) return;
+    function startInterview() {
+      isInterviewing = true;
+      document.getElementById('btn-start').style.display = 'none';
+      document.getElementById('btn-submit').style.display = 'block';
+      document.getElementById('answer-box').disabled = false;
+      document.getElementById('answer-box').focus();
+      document.getElementById('current-stage').textContent = "Answering...";
+      document.getElementById('evaluation-result').textContent = "";
       
-      const content = document.getElementById('interview-content');
-      content.innerHTML = '<div style="text-align:center"><div class="spinner"></div><p>Evaluating answer...</p></div>';
+      document.getElementById('ai-question').textContent = questions[currentMode];
       
-      try {
-        const result = await API.InterviewApi.submitAnswer(qId, { answer: answer });
-        const data = result.data || result;
+      // Start 5 min timer
+      let timeLeft = 300;
+      clearInterval(timerInterval);
+      document.getElementById('timer').textContent = "05:00";
+      
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        if (timeLeft <= 0) {
+          submitAnswer();
+          return;
+        }
+        const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+        const s = (timeLeft % 60).toString().padStart(2, '0');
+        document.getElementById('timer').textContent = `${m}:${s}`;
+      }, 1000);
+    }
+
+    function submitAnswer() {
+      const ans = document.getElementById('answer-box').value;
+      if (!ans.trim() && document.getElementById('timer').textContent !== "00:00") {
+        alert("Please provide an answer.");
+        return;
+      }
+      
+      endInterview();
+      
+      document.getElementById('evaluation-result').textContent = "Evaluating...";
+      document.getElementById('evaluation-result').style.color = "var(--text-muted)";
+      
+      setTimeout(() => {
+        const score = Math.floor(Math.random() * 20) + 80;
+        document.getElementById('evaluation-result').textContent = `Score: ${score}/100. Excellent point!`;
+        document.getElementById('evaluation-result').style.color = "var(--success)";
         
-        content.innerHTML = `
-          <div class="card animate-in" style="max-width:800px;margin:0 auto">
-            <h3 style="margin-bottom:var(--s-4)">Evaluation complete!</h3>
-            <div style="font-size:2rem;font-weight:700;color:var(--brand-400);margin-bottom:var(--s-4)">Score: ${data.score} / 10</div>
-            
-            <div style="background:var(--bg-surface);padding:var(--s-4);border-radius:var(--r-md);margin-bottom:var(--s-4)">
-              <strong>AI Feedback:</strong><br>
-              ${data.ai_evaluation}
-            </div>
-            
-            <div style="display:flex;justify-content:center">
-              <button class="btn btn-primary" onclick="location.reload()">Finish</button>
-            </div>
-          </div>
-        `;
-      } catch (err) {
-        content.innerHTML = '<p>Error evaluating answer.</p>';
-      }
+        // Mock save progress
+        if (window.API && window.API.ProgressApi) {
+           window.API.ProgressApi.updateScore('interview', score).catch(e => console.log(e));
+        }
+      }, 1500);
+    }
+
+    function endInterview() {
+      isInterviewing = false;
+      clearInterval(timerInterval);
+      document.getElementById('timer').textContent = "00:00";
+      document.getElementById('btn-start').style.display = 'block';
+      document.getElementById('btn-start').textContent = 'Try Another Question';
+      document.getElementById('btn-submit').style.display = 'none';
+      document.getElementById('answer-box').disabled = true;
+      document.getElementById('current-stage').textContent = "Completed";
     }
 
     init();

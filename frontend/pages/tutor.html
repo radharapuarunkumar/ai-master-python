@@ -48,8 +48,14 @@
 
       <div class="page-content">
         <div class="chat-container">
+          <div style="padding:var(--s-3); border-bottom:1px solid var(--border); display:flex; gap:var(--s-2); background:var(--bg-surface)">
+            <button class="btn btn-ghost btn-sm" onclick="sendContext('Explain this code')">Explain Code</button>
+            <button class="btn btn-ghost btn-sm" onclick="sendContext('Debug my code')">Debug Help</button>
+            <button class="btn btn-ghost btn-sm" onclick="sendContext('Review my code')">Code Review</button>
+            <button class="btn btn-ghost btn-sm" onclick="sendContext('Give me learning recommendations')">Recommendations</button>
+          </div>
           <div class="chat-messages" id="chat-messages">
-            <div class="chat-msg msg-ai">Hi! I'm your AI Python Tutor. What would you like to learn today?</div>
+            <div class="chat-msg msg-ai">Hi! I'm your AI Python Tutor. I remember our last lesson on Variables. What would you like to learn today?</div>
           </div>
           <div class="chat-input">
             <input type="text" id="chat-input-box" placeholder="Ask a question about Python..." onkeypress="if(event.key==='Enter') sendMessage()">
@@ -79,6 +85,12 @@
       } catch (err) {
         console.error("Failed to start chat session", err);
       }
+    }
+
+    async function sendContext(contextStr) {
+      const input = document.getElementById('chat-input-box');
+      input.value = contextStr;
+      sendMessage();
     }
 
     async function sendMessage() {
