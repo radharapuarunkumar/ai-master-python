@@ -524,10 +524,10 @@
       Sidebar.init('dashboard');
 
       const [userProfile, stats, streak, progress] = await Promise.allSettled([
-        API.Auth.me(),
-        API.Users.stats(),
-        API.Progress.streak(),
-        API.Progress.all(),
+        API.AuthApi.me(),
+        API.UsersApi.stats(),
+        API.ProgressApi.streak(),
+        API.ProgressApi.all(),
       ]);
 
       const userStats = stats.value || {};
