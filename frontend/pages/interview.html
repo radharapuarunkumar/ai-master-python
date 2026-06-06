@@ -64,6 +64,20 @@
     function renderQuestion(q) {
       document.getElementById('interview-content').innerHTML = `
         <div class="card animate-in" style="max-width:800px;margin:0 auto">
+          <div style="display:flex; gap: var(--s-4); margin-bottom: var(--s-4)">
+            <div style="flex:1; background:#000; border-radius:var(--r-md); overflow:hidden; position:relative; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center">
+              <div style="position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.5); padding:4px 8px; border-radius:4px; font-size:0.8rem; color:#fff">AI Interviewer</div>
+              <div style="font-size:4rem">🤖</div>
+              <div style="position:absolute; bottom:10px; right:10px; display:flex; gap:5px">
+                <div style="width:10px; height:10px; background:green; border-radius:50%; animation: pulse 1.5s infinite"></div>
+              </div>
+            </div>
+            <div style="flex:1; background:#111; border-radius:var(--r-md); overflow:hidden; position:relative; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center">
+              <div style="position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.5); padding:4px 8px; border-radius:4px; font-size:0.8rem; color:#fff">You</div>
+              <div style="font-size:4rem; color:var(--text-muted)">👤</div>
+            </div>
+          </div>
+
           <div class="badge badge-brand" style="margin-bottom:var(--s-4)">Question ${q.order_index}</div>
           <h3 style="margin-bottom:var(--s-4)">${q.question_text}</h3>
           
@@ -84,16 +98,17 @@
       content.innerHTML = '<div style="text-align:center"><div class="spinner"></div><p>Evaluating answer...</p></div>';
       
       try {
-        const result = await API.InterviewApi.submitAnswer(qId, answer);
+        const result = await API.InterviewApi.submitAnswer(qId, { answer: answer });
+        const data = result.data || result;
         
         content.innerHTML = `
           <div class="card animate-in" style="max-width:800px;margin:0 auto">
             <h3 style="margin-bottom:var(--s-4)">Evaluation complete!</h3>
-            <div style="font-size:2rem;font-weight:700;color:var(--brand-400);margin-bottom:var(--s-4)">Score: ${result.score} / 10</div>
+            <div style="font-size:2rem;font-weight:700;color:var(--brand-400);margin-bottom:var(--s-4)">Score: ${data.score} / 10</div>
             
             <div style="background:var(--bg-surface);padding:var(--s-4);border-radius:var(--r-md);margin-bottom:var(--s-4)">
               <strong>AI Feedback:</strong><br>
-              ${result.ai_evaluation}
+              ${data.ai_evaluation}
             </div>
             
             <div style="display:flex;justify-content:center">

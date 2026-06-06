@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Community - AI Master Python</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .community-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
+    .leaderboard-table { width: 100%; border-collapse: collapse; }
+    .leaderboard-table th, .leaderboard-table td { padding: 1rem; border-bottom: 1px solid var(--border-color); text-align: left; }
+    .post-card { margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1>Community</h1>
+        </div>
+        <div class="topbar-right">
+          <div class="user-profile" id="userMenu">
+            <img src="https://ui-avatars.com/api/?name=User&background=0D8ABC&color=fff" alt="User Avatar" class="avatar" id="navAvatar">
+            <span class="user-name" id="navUserName">Loading...</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="content-wrapper community-layout">
+        <div class="feed-section">
+          <h2>Discussion Feed</h2>
+          <div id="feedList">
+            <div class="loading-spinner">Loading feed...</div>
+          </div>
+        </div>
+
+        <div class="leaderboard-section">
+          <h2>XP Leaderboard</h2>
+          <div class="card">
+            <table class="leaderboard-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Name</th>
+                  <th>XP</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboardList">
+                <tr><td colspan="3">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+    async function loadCommunity() {
+      try {
+        const feedRes = await API.CommunityApi.feed();
+        const feed = feedRes.data || [];
+        document.getElementById('feedList').innerHTML = feed.map(p => `
+          <div class="card post-card">
+            <h4>${p.author || 'Anonymous'}</h4>
+            <p>${p.content || ''}</p>
+            <small>👍 ${p.likes || 0} | ${p.time_ago || ''}</small>
+          </div>
+        `).join('');
+
+        const boardRes = await API.CommunityApi.leaderboard();
+        const board = boardRes.data || [];
+        document.getElementById('leaderboardList').innerHTML = board.map(u => `
+          <tr>
+            <td>#${u.rank || '-'}</td>
+            <td>${u.name || 'Unknown'}</td>
+            <td>${u.xp || 0} XP</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCommunity();
+    });
+  </script>
+</body>
+</html>

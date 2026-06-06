@@ -119,16 +119,20 @@ def create_app() -> FastAPI:
     # API Routers (v1)
     # ------------------------------------------------------------------
     from app.api.v1.auth import router as auth_router
-    from app.api.v1.users import router as users_router
+    from app.api.v1.certificates import router as certificates_router
+    from app.api.v1.chat import router as chat_router
     from app.api.v1.courses import router as courses_router
+    from app.api.v1.interviews import router as interviews_router
     from app.api.v1.progress import router as progress_router
     from app.api.v1.projects import router as projects_router
-    from app.api.v1.chat import router as chat_router
-    from app.api.v1.interviews import router as interviews_router
     from app.api.v1.resumes import router as resumes_router
-    from app.api.v1.certificates import router as certificates_router
+    from app.api.v1.users import router as users_router
+    from app.api.v1.jobs import router as jobs_router
+    from app.api.v1.community import router as community_router
 
     PREFIX = settings.API_V1_PREFIX
+
+    # Add each router
     app.include_router(auth_router, prefix=PREFIX)
     app.include_router(users_router, prefix=PREFIX)
     app.include_router(courses_router, prefix=PREFIX)
@@ -138,6 +142,8 @@ def create_app() -> FastAPI:
     app.include_router(interviews_router, prefix=PREFIX)
     app.include_router(resumes_router, prefix=PREFIX)
     app.include_router(certificates_router, prefix=PREFIX)
+    app.include_router(jobs_router, prefix=PREFIX)
+    app.include_router(community_router, prefix=PREFIX)
 
     # ------------------------------------------------------------------
     # Health check endpoints

@@ -128,6 +128,9 @@ const Sidebar = {
     { section: 'Career' },
     { icon: '📄', label: 'Resume',       href: '/frontend/pages/resume.html' },
     { icon: '🏆', label: 'Certificates', href: '/frontend/pages/certificates.html' },
+    { icon: '💼', label: 'Jobs',         href: '/frontend/pages/jobs.html' },
+    { section: 'Social' },
+    { icon: '🌐', label: 'Community',    href: '/frontend/pages/community.html' },
   ],
 
   render(activePage = '') {

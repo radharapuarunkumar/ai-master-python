@@ -88,6 +88,13 @@ class User(TimestampMixin, Base):
         DateTime(timezone=True),
         nullable=True,
     )
+    
+    xp: Mapped[int] = mapped_column(default=0, server_default="0", nullable=False)
+    daily_streak: Mapped[int] = mapped_column(default=0, server_default="0", nullable=False)
+    attendance_log: Mapped[list[str] | None] = mapped_column(JSONB, nullable=True)
+    interview_score: Mapped[int] = mapped_column(default=0, server_default="0", nullable=False)
+    resume_score: Mapped[int] = mapped_column(default=0, server_default="0", nullable=False)
+    project_score: Mapped[int] = mapped_column(default=0, server_default="0", nullable=False)
 
     def __repr__(self) -> str:
         return f"<User {self.email!r} role={self.role.value}>"

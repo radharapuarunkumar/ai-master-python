@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Jobs & Internships - AI Master Python</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1>Jobs & Internships</h1>
+        </div>
+        <div class="topbar-right">
+          <div class="user-profile" id="userMenu">
+            <img src="https://ui-avatars.com/api/?name=User&background=0D8ABC&color=fff" alt="User Avatar" class="avatar" id="navAvatar">
+            <span class="user-name" id="navUserName">Loading...</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="content-wrapper">
+        <div class="jobs-controls">
+          <select id="jobTypeFilter">
+            <option value="">All Types</option>
+            <option value="full-time">Full-time</option>
+            <option value="internship">Internship</option>
+          </select>
+          <button class="btn btn-primary" onclick="loadJobs()">Search</button>
+        </div>
+
+        <div class="jobs-list" id="jobsList">
+          <div class="loading-spinner">Loading jobs...</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+    async function loadJobs() {
+      const type = document.getElementById('jobTypeFilter').value;
+      const list = document.getElementById('jobsList');
+      list.innerHTML = '<div class="loading-spinner">Loading jobs...</div>';
+      try {
+        const response = await API.JobsApi.list(type);
+        const jobs = response.data || [];
+        if (jobs.length === 0) {
+          list.innerHTML = '<p>No jobs found.</p>';
+          return;
+        }
+        list.innerHTML = jobs.map(j => `
+          <div class="card job-card">
+            <h3>${j.title || 'Unknown Title'}</h3>
+            <p><strong>${j.company || 'Unknown Company'}</strong> - ${j.location || 'Remote'}</p>
+            <p class="badge">${j.type || 'N/A'}</p>
+            <p>${j.description || 'No description available.'}</p>
+            <p><small>Posted: ${j.posted_at || 'Recently'}</small></p>
+            <a href="${j.apply_url || '#'}" class="btn btn-secondary" target="_blank">Apply Now</a>
+          </div>
+        `).join('');
+      } catch (err) {
+        list.innerHTML = `<p class="error-text">Failed to load jobs: ${err.message}</p>`;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadJobs();
+    });
+  </script>
+</body>
+</html>

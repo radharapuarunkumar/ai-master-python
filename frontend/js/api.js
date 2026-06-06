@@ -165,11 +165,33 @@ const ResumeApi = {
 const CertificatesApi = {
   list: () => requestWithRefresh('/certificates'),
   generate: (courseId) => requestWithRefresh(`/certificates/${courseId}`, { method: 'POST' }),
+  verify: (hash) => request(`/certificates/verify/${hash}`),
+};
+
+const JobsApi = {
+  list: (jobType = null) => {
+    const url = jobType ? `/jobs?job_type=${encodeURIComponent(jobType)}` : '/jobs';
+    return requestWithRefresh(url);
+  }
+};
+
+const CommunityApi = {
+  leaderboard: () => requestWithRefresh('/community/leaderboard'),
+  feed: () => requestWithRefresh('/community/feed'),
 };
 
 /* ── Expose globally ─────────────────────────────────────── */
-window.API = { 
-  AuthApi, UsersApi, CoursesApi, ProgressApi, 
-  ProjectsApi, ChatApi, InterviewApi, ResumeApi, CertificatesApi,
-  ApiError 
+window.API = {
+  AuthApi,
+  UsersApi,
+  CoursesApi,
+  ProgressApi,
+  ProjectsApi,
+  ChatApi,
+  InterviewApi,
+  ResumeApi,
+  CertificatesApi,
+  JobsApi,
+  CommunityApi,
+  ApiError
 };

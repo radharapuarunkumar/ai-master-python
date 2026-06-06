@@ -50,7 +50,12 @@ class UserListItem(BaseModel):
 
 class UserDetail(UserListItem):
     onboarding_completed: bool
-    preferences: dict
+    preferences: dict | None
+    xp: int
+    daily_streak: int
+    interview_score: int
+    resume_score: int
+    project_score: int
 
 
 class AdminUserUpdate(BaseModel):

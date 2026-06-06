@@ -521,70 +521,71 @@
       const greet = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
 
       document.getElementById('topbar-greeting').textContent = `${greet}, ${user.full_name?.split(' ')[0]} 👋`;
-
-
-
-      // Sidebar
-
       Sidebar.init('dashboard');
 
-
-
-      // Load data in parallel
-
-      const [stats, streak, progress] = await Promise.allSettled([
-
-        API.UsersApi.stats(),
-
-        API.ProgressApi.streak(),
-
-        API.ProgressApi.all(),
-
+      const [userProfile, stats, streak, progress] = await Promise.allSettled([
+        API.Auth.me(),
+        API.Users.stats(),
+        API.Progress.streak(),
+        API.Progress.all(),
       ]);
 
+      const userStats = stats.value || {};
+      const userStreak = streak.value || {};
+      const userProg = progress.value || [];
+      const userMeta = userProfile.value?.data || {};
 
-
-      renderStats(stats.value || {});
-
-      renderStreak(streak.value || {});
-
-      renderProgress(progress.value || []);
-
-      renderActivityChart(progress.value || []);
-
+      renderStats(userStats, userMeta);
+      renderStreak(userStreak);
+      renderProgress(userProg);
+      renderActivityChart(userProg);
+      renderScores(userMeta);
     }
 
-
-
-    function renderStats(s) {
-
+    function renderStats(s, m) {
       const cfg = [
-
-        { label:'Lessons Completed', val: s.lessons_completed??0,    icon:'📖', color:'rgba(99,102,241,0.2)',   suffix:'' },
-
-        { label:'Hours Studied',     val: Math.floor((s.total_time_minutes??0)/60), icon:'â±', color:'rgba(16,185,129,0.2)',  suffix:'h' },
-
-        { label:'Day Streak',        val: s.current_streak??0,       icon:'🔥', color:'rgba(245,158,11,0.2)',  suffix:' days' },
-
-        { label:'Certificates',      val: s.certificates_earned??0,  icon:'ðŸ†', color:'rgba(124,58,237,0.2)', suffix:'' },
-
+        { label:'Total XP', val: m.xp??0, icon:'✨', color:'rgba(99,102,241,0.2)', suffix:'' },
+        { label:'Hours Studied', val: Math.floor((s.total_time_minutes??0)/60), icon:'⏳', color:'rgba(16,185,129,0.2)', suffix:'h' },
+        { label:'Day Streak', val: s.current_streak??0, icon:'🔥', color:'rgba(245,158,11,0.2)', suffix:' days' },
+        { label:'Certificates', val: s.certificates_earned??0, icon:'🏆', color:'rgba(124,58,237,0.2)', suffix:'' },
       ];
-
       document.getElementById('stats-grid').innerHTML = cfg.map(c => `
-
         <div class="stat-card animate-in">
-
           <div class="stat-icon" style="background:${c.color}">${c.icon}</div>
-
           <div class="stat-value">${c.val}<small style="font-size:1rem">${c.suffix}</small></div>
-
           <div class="stat-label">${c.label}</div>
-
         </div>`).join('');
-
     }
 
-
+    function renderScores(m) {
+      const cfg = [
+        { label: 'Interview Readiness', val: m.interview_score ?? 0, color: 'var(--brand-500)' },
+        { label: 'Resume Completion', val: m.resume_score ?? 0, color: 'var(--success-500)' },
+        { label: 'Project Portfolio', val: m.project_score ?? 0, color: 'var(--accent-a)' }
+      ];
+      
+      const scoresHtml = cfg.map(c => `
+        <div style="margin-bottom: var(--s-3);">
+          <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-weight:600; margin-bottom:4px;">
+            <span>${c.label}</span>
+            <span>${c.val}%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width:${c.val}%; background:${c.color}"></div>
+          </div>
+        </div>
+      `).join('');
+      
+      const rightCol = document.querySelector('.streak-card').parentNode;
+      
+      const scoresCard = document.createElement('div');
+      scoresCard.className = 'card animate-in';
+      scoresCard.innerHTML = `
+        <div style="font-weight:700;margin-bottom:var(--s-4)">Career Readiness Scores</div>
+        ${scoresHtml}
+      `;
+      rightCol.insertBefore(scoresCard, rightCol.children[1]);
+    }
 
     function renderStreak(s) {
 

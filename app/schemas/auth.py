@@ -46,6 +46,11 @@ class UserResponse(BaseModel):
     onboarding_completed: bool
     last_login_at: datetime | None
     created_at: datetime
+    xp: int = 0
+    daily_streak: int = 0
+    interview_score: int = 0
+    resume_score: int = 0
+    project_score: int = 0
 
     model_config = {"from_attributes": True}
 

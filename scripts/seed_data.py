@@ -64,24 +64,113 @@ COURSES = [
         "difficulty": "beginner",
         "modules": [
             {
-                "title": "Getting Started with Python",
+                "title": "Phase 1: Python Basics",
                 "order": 1,
                 "lessons": [
-                    {"title": "Installing Python", "order": 1, "content": "How to install Python on your system."},
-                    {"title": "Your First Program", "order": 2, "content": "Writing and running your first Python script."},
-                    {"title": "Variables and Data Types", "order": 3, "content": "Understanding variables, strings, numbers, and booleans."},
-                ],
+                    {"title": "Variables", "order": 1, "content": "Variables in Python."},
+                    {"title": "Data Types", "order": 2, "content": "Strings, integers, floats, booleans."},
+                    {"title": "Input Output", "order": 3, "content": "Using print() and input()."},
+                    {"title": "Operators", "order": 4, "content": "Arithmetic and logical operators."},
+                ]
             },
-        ],
-    },
+            {
+                "title": "Phase 2: Conditions and Loops",
+                "order": 2,
+                "lessons": [
+                    {"title": "If Else", "order": 1, "content": "Conditional statements."},
+                    {"title": "Nested Conditions", "order": 2, "content": "If statements inside if statements."},
+                    {"title": "For Loop", "order": 3, "content": "Iterating over sequences."},
+                    {"title": "While Loop", "order": 4, "content": "Looping until a condition is met."},
+                ]
+            },
+            {
+                "title": "Phase 3: Functions",
+                "order": 3,
+                "lessons": [
+                    {"title": "Functions", "order": 1, "content": "Defining reusable blocks of code."},
+                    {"title": "Arguments", "order": 2, "content": "Passing data to functions."},
+                    {"title": "Lambda", "order": 3, "content": "Anonymous inline functions."},
+                    {"title": "Recursion", "order": 4, "content": "Functions calling themselves."},
+                ]
+            },
+            {
+                "title": "Phase 4: Data Structures",
+                "order": 4,
+                "lessons": [
+                    {"title": "Lists", "order": 1, "content": "Mutable ordered sequences."},
+                    {"title": "Tuples", "order": 2, "content": "Immutable ordered sequences."},
+                    {"title": "Sets", "order": 3, "content": "Unordered collections of unique elements."},
+                    {"title": "Dictionaries", "order": 4, "content": "Key-value mappings."},
+                ]
+            },
+            {
+                "title": "Phase 5: File Handling",
+                "order": 5,
+                "lessons": [
+                    {"title": "Files", "order": 1, "content": "Reading and writing files."},
+                    {"title": "Exceptions", "order": 2, "content": "Handling errors using try/except."},
+                    {"title": "Modules", "order": 3, "content": "Importing other Python files."},
+                ]
+            },
+            {
+                "title": "Phase 6: OOP",
+                "order": 6,
+                "lessons": [
+                    {"title": "Classes", "order": 1, "content": "Defining object blueprints."},
+                    {"title": "Objects", "order": 2, "content": "Instantiating classes."},
+                    {"title": "Inheritance", "order": 3, "content": "Extending existing classes."},
+                    {"title": "Polymorphism", "order": 4, "content": "Using a unified interface."},
+                ]
+            },
+            {
+                "title": "Phase 7: Databases",
+                "order": 7,
+                "lessons": [
+                    {"title": "SQLite", "order": 1, "content": "Introduction to SQLite3."},
+                    {"title": "CRUD", "order": 2, "content": "Create, Read, Update, Delete."},
+                ]
+            },
+            {
+                "title": "Phase 8: APIs",
+                "order": 8,
+                "lessons": [
+                    {"title": "REST APIs", "order": 1, "content": "Understanding RESTful architecture."},
+                    {"title": "Requests", "order": 2, "content": "Making HTTP requests in Python."},
+                    {"title": "JSON", "order": 3, "content": "Parsing and generating JSON data."},
+                ]
+            },
+            {
+                "title": "Phase 9: Web Development",
+                "order": 9,
+                "lessons": [
+                    {"title": "Flask", "order": 1, "content": "Building simple web apps with Flask."},
+                    {"title": "FastAPI", "order": 2, "content": "Building high-performance async APIs."},
+                ]
+            },
+            {
+                "title": "Phase 10: Job Preparation",
+                "order": 10,
+                "lessons": [
+                    {"title": "Resume", "order": 1, "content": "Crafting a software engineering resume."},
+                    {"title": "Projects", "order": 2, "content": "Selecting projects for your portfolio."},
+                    {"title": "Interviews", "order": 3, "content": "Preparing for technical interviews."},
+                    {"title": "Placements", "order": 4, "content": "Applying to jobs and internships."},
+                ]
+            }
+        ]
+    }
 ]
 
 PROJECTS = [
-    {"title": "Terminal To-Do List", "description": "Build a CLI to-do app using Python.", "difficulty": "beginner"},
-    {"title": "Weather API Fetcher", "description": "Use requests to fetch weather data.", "difficulty": "beginner"},
-    {"title": "Web Scraper", "description": "Scrape a website using BeautifulSoup.", "difficulty": "intermediate"},
-    {"title": "Flask API", "description": "Build a basic REST API with Flask.", "difficulty": "intermediate"},
-    {"title": "Discord Bot", "description": "Create a Discord bot with discord.py.", "difficulty": "advanced"},
+    {"title": "Calculator", "description": "Build a basic calculator in Python.", "difficulty": "beginner"},
+    {"title": "Number Guessing Game", "description": "Create a CLI number guessing game.", "difficulty": "beginner"},
+    {"title": "Contact Book", "description": "Store and retrieve contacts using dictionaries.", "difficulty": "beginner"},
+    {"title": "Expense Tracker", "description": "Track expenses using file handling or SQLite.", "difficulty": "intermediate"},
+    {"title": "Weather App", "description": "Fetch live weather data from an API.", "difficulty": "intermediate"},
+    {"title": "Student Management System", "description": "Manage student records using OOP concepts.", "difficulty": "intermediate"},
+    {"title": "AI Resume Builder", "description": "Generate dynamic resumes using FastAPI.", "difficulty": "advanced"},
+    {"title": "Interview Simulator", "description": "Create an automated interview bot.", "difficulty": "advanced"},
+    {"title": "Learning Management System", "description": "Build a comprehensive LMS backend.", "difficulty": "advanced"},
 ]
 
 # ---------------------------------------------------------------------------
